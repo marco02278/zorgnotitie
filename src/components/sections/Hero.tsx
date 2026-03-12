@@ -1,83 +1,174 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Mic, FileText, Pencil, ArrowRight, Clock, CheckCircle2, Sparkles } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Mic, FileText, Pencil, ArrowRight, Clock, CheckCircle2, Loader2, Check, ChevronDown, Brain } from "lucide-react";
 
-// Feature showcase phases
 const phases = [
-  {
-    id: "record",
-    icon: Mic,
-    label: "Opnemen",
-    color: "text-red-500",
-    bgColor: "bg-red-50",
-    ringColor: "ring-red-200",
-  },
-  {
-    id: "report",
-    icon: FileText,
-    label: "Verslag",
-    color: "text-[#772d07]",
-    bgColor: "bg-[#772d07]/5",
-    ringColor: "ring-[#772d07]/20",
-  },
-  {
-    id: "edit",
-    icon: Pencil,
-    label: "Aanpassen",
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-50",
-    ringColor: "ring-emerald-200",
-  },
+  { id: "record", icon: Mic, label: "Opnemen", color: "text-red-500", bgColor: "bg-red-50", ringColor: "ring-red-200" },
+  { id: "report", icon: FileText, label: "Verslag", color: "text-[#772d07]", bgColor: "bg-[#772d07]/5", ringColor: "ring-[#772d07]/20" },
+  { id: "edit", icon: Pencil, label: "Aanpassen", color: "text-emerald-600", bgColor: "bg-emerald-50", ringColor: "ring-emerald-200" },
 ];
 
-// Mini animated feature demo
+const soepSections = [
+  { label: "S", title: "Subjectief", original: "Patiënte (46 jr) met acute lage rugpijn sinds gisteravond.", edited: "Patiënte (46 jr) met acute lage rugpijn, na het tillen van een zware doos." },
+  { label: "O", title: "Objectief", original: "Drukpijn L4-L5 paravertebraal rechts. Lasègue positief bij 60°." },
+  { label: "E", title: "Evaluatie", original: "Waarschijnlijk lumbale radiculopathie rechts." },
+  { label: "P", title: "Plan", original: "Pijnstilling + fysiotherapie. Controle over 2 weken." },
+];
+
+const templates = [
+  { name: "SOEP-verslag", desc: "Subjectief, Objectief, Evaluatie, Plan" },
+  { name: "DAP-notitie", desc: "Data, Assessment, Plan" },
+  { name: "Intake verslag", desc: "Gestructureerd intakeverslag" },
+];
+
+const waveDelays = [0, 0.2, 0.4, 0.1, 0.3, 0.5, 0.2, 0.4, 0, 0.3, 0.1, 0.4, 0.2, 0.5, 0.1, 0.3, 0, 0.2, 0.4, 0.1];
+const commentText = "Oorzaak toevoegen: pijn begon na tillen";
+
 const FeatureShowcase = () => {
   const [activePhase, setActivePhase] = useState(0);
-  const [innerStep, setInnerStep] = useState(0);
+  const [step, setStep] = useState(0);
+  const [typedChars, setTypedChars] = useState(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const micBtnRef = useRef<HTMLDivElement>(null);
+  const stopBtnRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const soepOptionRef = useRef<HTMLDivElement>(null);
+  const sBtnRef = useRef<HTMLDivElement>(null);
+
+  const [micPos, setMicPos] = useState({ x: 60, y: 55 });
+  const [stopPos, setStopPos] = useState({ x: 400, y: 55 });
+  const [dropPos, setDropPos] = useState({ x: 200, y: 130 });
+  const [soepPos, setSoepPos] = useState({ x: 180, y: 210 });
+  const [sPos, setSPos] = useState({ x: 200, y: 200 });
+
+  const measure = useCallback(() => {
+    if (!containerRef.current) return;
+    const cRect = containerRef.current.getBoundingClientRect();
+    const pos = (ref: React.RefObject<HTMLDivElement | null>, fx = 0.5, fy = 0.5) => {
+      if (!ref.current) return null;
+      const r = ref.current.getBoundingClientRect();
+      return { x: r.left - cRect.left + r.width * fx, y: r.top - cRect.top + r.height * fy };
+    };
+    const m = pos(micBtnRef); if (m) setMicPos(m);
+    const s = pos(stopBtnRef); if (s) setStopPos(s);
+    const d = pos(dropdownRef); if (d) setDropPos(d);
+    const so = pos(soepOptionRef, 0.5, 0.5); if (so) setSoepPos(so);
+    const sb = pos(sBtnRef, 0.4, 0.5); if (sb) setSPos(sb);
+  }, []);
+
+  useEffect(() => {
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [measure]);
+
+  useEffect(() => {
+    const t = setTimeout(measure, 80);
+    return () => clearTimeout(t);
+  }, [activePhase, step, measure]);
+
+  useEffect(() => {
+    if (activePhase === 2 && step === 4) {
+      setTypedChars(0);
+      let i = 0;
+      const iv = setInterval(() => { i++; setTypedChars(i); if (i >= commentText.length) clearInterval(iv); }, 55);
+      return () => clearInterval(iv);
+    }
+  }, [activePhase, step]);
 
   useEffect(() => {
     let mounted = true;
     const run = async () => {
       while (mounted) {
         // Phase 0: Recording
-        setActivePhase(0);
-        setInnerStep(0);
-        await new Promise(r => setTimeout(r, 600)); if (!mounted) break;
-        setInnerStep(1); // recording active
-        await new Promise(r => setTimeout(r, 2500)); if (!mounted) break;
-        setInnerStep(2); // done recording
-        await new Promise(r => setTimeout(r, 800)); if (!mounted) break;
+        setActivePhase(0); setStep(0);
+        await new Promise(r => setTimeout(r, 700)); if (!mounted) break;
+        setStep(1); await new Promise(r => setTimeout(r, 900)); if (!mounted) break;
+        setStep(2); await new Promise(r => setTimeout(r, 300)); if (!mounted) break;
+        setStep(3); await new Promise(r => setTimeout(r, 2500)); if (!mounted) break;
+        setStep(4); await new Promise(r => setTimeout(r, 800)); if (!mounted) break;
+        setStep(5); await new Promise(r => setTimeout(r, 300)); if (!mounted) break;
+        setStep(6); await new Promise(r => setTimeout(r, 1600)); if (!mounted) break;
+        setStep(7); await new Promise(r => setTimeout(r, 3500)); if (!mounted) break;
 
-        // Phase 1: AI Report
-        setActivePhase(1);
-        setInnerStep(0);
-        await new Promise(r => setTimeout(r, 400)); if (!mounted) break;
-        setInnerStep(1); // generating
-        await new Promise(r => setTimeout(r, 1800)); if (!mounted) break;
-        setInnerStep(2); // report ready
-        await new Promise(r => setTimeout(r, 2500)); if (!mounted) break;
+        // Phase 1: Report
+        setActivePhase(1); setStep(0);
+        await new Promise(r => setTimeout(r, 500)); if (!mounted) break;
+        setStep(1); await new Promise(r => setTimeout(r, 900)); if (!mounted) break;
+        setStep(2); await new Promise(r => setTimeout(r, 400)); if (!mounted) break;
+        setStep(3); await new Promise(r => setTimeout(r, 300)); if (!mounted) break;
+        setStep(4); await new Promise(r => setTimeout(r, 900)); if (!mounted) break;
+        setStep(5); await new Promise(r => setTimeout(r, 400)); if (!mounted) break;
+        setStep(6); await new Promise(r => setTimeout(r, 1800)); if (!mounted) break;
+        setStep(7); await new Promise(r => setTimeout(r, 4000)); if (!mounted) break;
 
         // Phase 2: Edit
-        setActivePhase(2);
-        setInnerStep(0);
-        await new Promise(r => setTimeout(r, 400)); if (!mounted) break;
-        setInnerStep(1); // editing
-        await new Promise(r => setTimeout(r, 1800)); if (!mounted) break;
-        setInnerStep(2); // saved
-        await new Promise(r => setTimeout(r, 2500));
+        setActivePhase(2); setStep(0);
+        await new Promise(r => setTimeout(r, 800)); if (!mounted) break;
+        setStep(1); await new Promise(r => setTimeout(r, 900)); if (!mounted) break;
+        setStep(2); await new Promise(r => setTimeout(r, 400)); if (!mounted) break;
+        setStep(3); await new Promise(r => setTimeout(r, 500)); if (!mounted) break;
+        setStep(4); await new Promise(r => setTimeout(r, 3200)); if (!mounted) break;
+        setStep(5); await new Promise(r => setTimeout(r, 400)); if (!mounted) break;
+        setStep(6); await new Promise(r => setTimeout(r, 600)); if (!mounted) break;
+        setStep(7); await new Promise(r => setTimeout(r, 3000));
       }
     };
     run();
     return () => { mounted = false; };
   }, []);
 
-  // Waveform bars for recording
-  const waveDelays = [0, 0.15, 0.3, 0.05, 0.2, 0.35, 0.1, 0.25, 0, 0.15, 0.3, 0.05, 0.2, 0.35, 0.1, 0.25];
+  const getCursorStyle = useCallback((): React.CSSProperties => {
+    if (activePhase === 0) {
+      switch (step) {
+        case 0: return { transform: "translate(200px,200px)", opacity: 0 };
+        case 1: return { transform: `translate(${micPos.x}px,${micPos.y}px)`, opacity: 1 };
+        case 2: return { transform: `translate(${micPos.x}px,${micPos.y}px) scale(0.85)`, opacity: 1 };
+        case 3: return { transform: "translate(200px,250px)", opacity: 0 };
+        case 4: return { transform: `translate(${stopPos.x}px,${stopPos.y}px)`, opacity: 1 };
+        case 5: return { transform: `translate(${stopPos.x}px,${stopPos.y}px) scale(0.85)`, opacity: 1 };
+        default: return { opacity: 0 };
+      }
+    }
+    if (activePhase === 1) {
+      switch (step) {
+        case 0: return { opacity: 0 };
+        case 1: return { transform: `translate(${dropPos.x}px,${dropPos.y}px)`, opacity: 1 };
+        case 2: return { transform: `translate(${dropPos.x}px,${dropPos.y}px) scale(0.85)`, opacity: 1 };
+        case 3: return { transform: `translate(${dropPos.x}px,${dropPos.y}px)`, opacity: 1 };
+        case 4: return { transform: `translate(${soepPos.x}px,${soepPos.y}px)`, opacity: 1 };
+        case 5: return { transform: `translate(${soepPos.x}px,${soepPos.y}px) scale(0.85)`, opacity: 1 };
+        default: return { opacity: 0 };
+      }
+    }
+    if (activePhase === 2) {
+      switch (step) {
+        case 0: return { opacity: 0 };
+        case 1: return { transform: `translate(${sPos.x}px,${sPos.y}px)`, opacity: 1 };
+        case 2: return { transform: `translate(${sPos.x}px,${sPos.y}px) scale(0.85)`, opacity: 1 };
+        default: return { opacity: 0 };
+      }
+    }
+    return { opacity: 0 };
+  }, [activePhase, step, micPos, stopPos, dropPos, soepPos, sPos]);
+
+  const isRecording = activePhase === 0 && step >= 2 && step <= 4;
+  const isProcessing = activePhase === 0 && step === 6;
+  const transcriptVisible = activePhase === 0 && step >= 7;
+  const dropdownOpen = activePhase === 1 && step >= 3 && step <= 4;
+  const templateSelected = activePhase === 1 && step >= 5;
+  const isGenerating = activePhase === 1 && step === 6;
+  const reportVisible = activePhase === 1 && step >= 7;
+  const sSelected = activePhase === 2 && step >= 2 && step <= 5;
+  const panelOpen = activePhase === 2 && step >= 3 && step <= 5;
+  const edited = activePhase === 2 && step >= 6;
+  const allSaved = activePhase === 2 && step >= 7;
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl">
-      {/* Top bar - simulated app chrome */}
+    <div ref={containerRef} className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl">
+      {/* Top bar */}
       <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
         <div className="flex gap-1.5">
           <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
@@ -89,189 +180,209 @@ const FeatureShowcase = () => {
         </div>
       </div>
 
-      {/* Phase indicator steps */}
-      <div className="flex items-center justify-center gap-2 px-5 py-4 border-b border-slate-50">
+      {/* Phase indicator */}
+      <div className="flex items-center justify-center gap-2 px-5 py-3 border-b border-slate-50">
         {phases.map((phase, i) => (
           <div key={phase.id} className="flex items-center gap-2">
             <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-500 ${
-              i === activePhase
-                ? `${phase.bgColor} ring-1 ${phase.ringColor}`
-                : i < activePhase
-                  ? 'bg-emerald-50'
-                  : 'bg-slate-50'
+              i === activePhase ? `${phase.bgColor} ring-1 ${phase.ringColor}` : i < activePhase ? "bg-emerald-50" : "bg-slate-50"
             }`}>
-              {i < activePhase ? (
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-              ) : (
-                <phase.icon className={`h-3.5 w-3.5 transition-colors duration-300 ${
-                  i === activePhase ? phase.color : 'text-slate-300'
-                }`} />
+              {i < activePhase ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> : (
+                <phase.icon className={`h-3.5 w-3.5 transition-colors duration-300 ${i === activePhase ? phase.color : "text-slate-300"}`} />
               )}
               <span className={`text-[11px] font-semibold transition-colors duration-300 ${
-                i === activePhase ? 'text-slate-700' : i < activePhase ? 'text-emerald-600' : 'text-slate-300'
-              }`}>
-                {phase.label}
-              </span>
+                i === activePhase ? "text-slate-700" : i < activePhase ? "text-emerald-600" : "text-slate-300"
+              }`}>{phase.label}</span>
             </div>
             {i < phases.length - 1 && (
-              <ArrowRight className={`h-3 w-3 transition-colors duration-300 ${
-                i < activePhase ? 'text-emerald-400' : 'text-slate-200'
-              }`} />
+              <ArrowRight className={`h-3 w-3 transition-colors duration-300 ${i < activePhase ? "text-emerald-400" : "text-slate-200"}`} />
             )}
           </div>
         ))}
       </div>
 
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        
-        {/* Phase 0: Recording */}
+      {/* Main content */}
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+
+        {/* ===== PHASE 0: Recording ===== */}
         {activePhase === 0 && (
-          <div className="flex flex-col items-center gap-5 animate-[fadeIn_0.4s_ease-out_forwards] w-full">
-            {/* Mic button */}
-            <div className={`flex h-20 w-20 items-center justify-center rounded-full transition-all duration-500 ${
-              innerStep === 1 ? 'bg-red-100 shadow-lg shadow-red-100 scale-110' : 'bg-slate-100'
-            }`}>
-              <Mic className={`h-9 w-9 transition-colors duration-300 ${
-                innerStep === 1 ? 'text-red-500' : 'text-slate-400'
-              }`} />
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-slate-50/80">
+              <div className="flex items-center gap-3">
+                <div ref={micBtnRef} className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 cursor-pointer ${isRecording ? "bg-red-100 text-red-600 scale-95 shadow-inner" : "bg-white text-slate-400 shadow-sm border border-slate-200"}`}>
+                  <Mic className="h-5 w-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className={`h-2 w-2 rounded-full transition-colors ${isRecording ? "bg-red-500 animate-pulse" : "bg-slate-300"}`} />
+                  <span className="text-sm font-mono font-semibold text-slate-600">{step < 2 ? "00:00" : isProcessing || transcriptVisible ? "00:14" : "00:06"}</span>
+                </div>
+              </div>
+              <div ref={stopBtnRef} className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 cursor-pointer ${step === 5 ? "bg-slate-200 scale-95 shadow-inner" : "bg-white shadow-sm border border-slate-200"}`}>
+                <div className="h-3.5 w-3.5 bg-slate-400 rounded-sm" />
+              </div>
             </div>
 
-            {/* Recording state */}
-            {innerStep >= 1 && (
-              <div className="flex flex-col items-center gap-3 animate-[fadeIn_0.3s_ease-out_forwards]">
-                <div className="flex items-center gap-2">
-                  <div className={`h-2 w-2 rounded-full ${innerStep === 1 ? 'bg-red-500 animate-pulse' : 'bg-slate-300'}`} />
-                  <span className="text-sm font-mono font-semibold text-slate-600">
-                    {innerStep === 1 ? '00:14' : '00:14'}
-                  </span>
-                  {innerStep === 2 && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+            <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-slate-50/30">
+              {step < 2 && (
+                <div className="flex flex-col items-center gap-3 text-slate-300">
+                  <Mic className="h-10 w-10" />
+                  <p className="text-sm font-medium">Klik op opnemen om te starten</p>
                 </div>
-
-                {/* Waveform */}
-                {innerStep === 1 && (
-                  <div className="flex items-center gap-[3px] h-12 animate-[fadeIn_0.3s_ease-out_forwards]">
-                    {waveDelays.map((delay, i) => (
-                      <div
-                        key={i}
-                        className="w-[4px] rounded-full bg-red-400/80 animate-[waveform_1s_ease-in-out_infinite]"
-                        style={{ animationDelay: `${delay}s` }}
-                      />
-                    ))}
+              )}
+              {isRecording && (
+                <div className="flex items-center gap-[5px] h-20 px-8 animate-[fadeIn_0.3s_ease-out_forwards]">
+                  {waveDelays.map((delay, i) => (
+                    <div key={i} className="w-[6px] bg-[#772d07] rounded-full animate-[waveform_1s_ease-in-out_infinite]" style={{ animationDelay: `${delay}s` }} />
+                  ))}
+                </div>
+              )}
+              {isProcessing && (
+                <div className="flex flex-col items-center gap-3 animate-[fadeIn_0.3s_ease-out_forwards]">
+                  <Loader2 className="h-9 w-9 text-[#772d07] animate-spin" />
+                  <p className="text-sm font-semibold text-slate-500 animate-pulse">Transcript genereren...</p>
+                </div>
+              )}
+              {transcriptVisible && (
+                <div className="absolute inset-0 flex flex-col p-4 gap-3 overflow-y-auto bg-white animate-[fadeIn_0.5s_ease-out_forwards]">
+                  <div className="flex flex-col gap-1 animate-[slideDown_0.5s_ease-out_forwards]" style={{ animationFillMode: "backwards" }}>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Arts</span>
+                    <div className="bg-slate-50 rounded-2xl rounded-tl-none px-4 py-2.5 w-[85%] border border-slate-100">
+                      <p className="text-[12px] text-slate-700 leading-relaxed">Goedemorgen mevrouw Jansen. Kunt u aangeven waar de pijn precies zit?</p>
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* Patient info card */}
-            <div className="w-full max-w-[300px] rounded-xl border border-slate-100 bg-slate-50/50 p-3">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-[#772d07]/10 flex items-center justify-center">
-                  <span className="text-[11px] font-bold text-[#772d07]">MJ</span>
+                  <div className="flex flex-col gap-1 items-end animate-[slideDown_0.5s_ease-out_forwards]" style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}>
+                    <span className="text-[10px] font-bold text-[#772d07] uppercase tracking-wider mr-1">Patiënt</span>
+                    <div className="bg-[#772d07]/5 rounded-2xl rounded-tr-none px-4 py-2.5 w-[85%] border border-[#772d07]/10">
+                      <p className="text-[12px] text-[#5a2205] leading-relaxed">Het zit onderin mijn rug, sinds gisteravond plotseling ingeschoten.</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 animate-[slideDown_0.5s_ease-out_forwards]" style={{ animationDelay: "1.2s", animationFillMode: "backwards" }}>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Arts</span>
+                    <div className="bg-slate-50 rounded-2xl rounded-tl-none px-4 py-2.5 w-[85%] border border-slate-100">
+                      <p className="text-[12px] text-slate-700 leading-relaxed">Straalt de pijn ook uit naar uw benen of voeten?</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[12px] font-semibold text-slate-700">Mw. Jansen</p>
-                  <p className="text-[10px] text-slate-400">Consult · Huisarts</p>
-                </div>
-                <div className="ml-auto">
-                  <Clock className="h-3.5 w-3.5 text-slate-300" />
-                </div>
-              </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Phase 1: AI Report Generation */}
+        {/* ===== PHASE 1: Template & Report ===== */}
         {activePhase === 1 && (
-          <div className="flex flex-col items-center gap-4 w-full animate-[fadeIn_0.4s_ease-out_forwards]">
-            {innerStep === 0 && (
-              <div className="flex flex-col items-center gap-3">
-                <Sparkles className="h-8 w-8 text-[#772d07]" />
-                <p className="text-sm font-medium text-slate-500">Template selecteren...</p>
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50/80">
+              <div className="flex items-center gap-3">
+                <Brain className="h-4 w-4 text-[#772d07]" />
+                <span className="text-sm font-semibold text-slate-700">Verslag genereren</span>
               </div>
-            )}
+              {templateSelected && (
+                <span className="text-xs font-medium text-[#772d07] bg-[#772d07]/10 px-3 py-1 rounded-full animate-[fadeIn_0.3s_ease-out_forwards]">SOEP-verslag</span>
+              )}
+            </div>
+            <div className="flex-1 flex flex-col overflow-hidden relative">
+              {!reportVisible && !isGenerating && (
+                <div className="p-4">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Kies een template</p>
+                  <div className="relative">
+                    <div ref={dropdownRef} className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-300 cursor-pointer ${dropdownOpen || templateSelected ? "border-[#772d07] bg-[#772d07]/5" : "border-slate-200 bg-white"}`}>
+                      <span className={`text-sm ${templateSelected ? "font-semibold text-[#772d07]" : "text-slate-400"}`}>
+                        {templateSelected ? "SOEP-verslag" : "Selecteer template..."}
+                      </span>
+                      <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""}`} />
+                    </div>
+                    <div className={`absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden transition-all duration-300 z-20 ${dropdownOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"}`}>
+                      {templates.map((t, i) => (
+                        <div key={i} ref={i === 0 ? soepOptionRef : undefined} className={`px-4 py-3 border-b border-slate-50 last:border-0 transition-colors ${i === 0 && step >= 4 ? "bg-[#772d07]/5" : "hover:bg-slate-50"}`}>
+                          <p className="text-sm font-semibold text-slate-700">{t.name}</p>
+                          <p className="text-xs text-slate-400">{t.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {isGenerating && (
+                <div className="flex-1 flex flex-col items-center justify-center gap-4 animate-[fadeIn_0.3s_ease-out_forwards]">
+                  <Loader2 className="h-9 w-9 text-[#772d07] animate-spin" />
+                  <p className="text-sm font-semibold text-slate-500 animate-pulse">AI genereert SOEP-verslag...</p>
+                </div>
+              )}
+              {reportVisible && (
+                <div className="flex-1 flex flex-col p-4 gap-3 overflow-y-auto animate-[fadeIn_0.5s_ease-out_forwards]">
+                  {soepSections.map((s, i) => (
+                    <div key={i} className="animate-[slideDown_0.4s_ease-out_forwards]" style={{ animationDelay: `${i * 0.25}s`, animationFillMode: "backwards" }}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#772d07] text-[9px] font-bold text-white">{s.label}</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{s.title}</span>
+                      </div>
+                      <p className="text-[12px] text-slate-700 leading-relaxed pl-7">{s.original}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
-            {innerStep === 1 && (
-              <div className="flex flex-col items-center gap-4 animate-[fadeIn_0.3s_ease-out_forwards]">
-                <div className="relative">
-                  <Sparkles className="h-10 w-10 text-[#772d07] animate-pulse" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-slate-600">SOEP-verslag genereren</p>
-                  <p className="text-xs text-slate-400 mt-1">AI analyseert het transcript...</p>
-                </div>
-                {/* Progress bar */}
-                <div className="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#772d07] rounded-full animate-[progressBar_1.8s_ease-out_forwards]" />
-                </div>
+        {/* ===== PHASE 2: Edit ===== */}
+        {activePhase === 2 && (
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50/80">
+              <div className="flex items-center gap-3">
+                <Pencil className="h-4 w-4 text-[#772d07]" />
+                <span className="text-sm font-semibold text-slate-700">Verslag aanpassen</span>
               </div>
-            )}
-
-            {innerStep === 2 && (
-              <div className="w-full max-w-[320px] flex flex-col gap-2.5 animate-[fadeIn_0.4s_ease-out_forwards]">
-                {['S', 'O', 'E', 'P'].map((letter, i) => (
-                  <div
-                    key={letter}
-                    className="flex items-start gap-2.5 animate-[slideDown_0.4s_ease-out_forwards]"
-                    style={{ animationDelay: `${i * 0.15}s`, animationFillMode: 'backwards' }}
-                  >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#772d07] text-[10px] font-bold text-white mt-0.5">
-                      {letter}
-                    </span>
-                    <div className="flex-1">
-                      <div className={`h-2 rounded-full bg-slate-200 mb-1.5`} style={{ width: `${85 - i * 10}%` }} />
-                      <div className={`h-2 rounded-full bg-slate-100`} style={{ width: `${65 - i * 5}%` }} />
+              {allSaved && (
+                <div className="flex items-center gap-1.5 text-emerald-600 animate-[fadeIn_0.3s_ease-out_forwards]">
+                  <Check className="h-4 w-4" />
+                  <span className="text-xs font-semibold">Opgeslagen</span>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 flex overflow-hidden">
+              <div className={`flex-1 flex flex-col p-4 gap-2.5 overflow-y-auto transition-all duration-500 ${panelOpen ? "pr-2" : "pr-4"}`}>
+                {soepSections.map((s, i) => (
+                  <div key={i}>
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#772d07] text-[9px] font-bold text-white">{s.label}</span>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{s.title}</span>
+                      {i === 0 && edited && <span className="ml-auto text-[9px] font-medium text-emerald-500 animate-[fadeIn_0.3s_ease-out_forwards]">aangepast</span>}
+                    </div>
+                    <div ref={i === 0 ? sBtnRef : undefined} className={`relative rounded-lg px-2.5 py-1.5 ml-6 transition-all duration-300 ${
+                      i === 0 && sSelected && !edited ? "bg-amber-50 ring-2 ring-amber-300" : i === 0 && edited ? "bg-emerald-50/50" : ""
+                    }`}>
+                      <p className="text-[12px] text-slate-700 leading-relaxed">
+                        {i === 0 && edited ? s.edited : s.original}
+                      </p>
+                      {i === 0 && step === 3 && <span className="inline-block w-0.5 h-3 bg-[#772d07] animate-pulse ml-0.5" />}
                     </div>
                   </div>
                 ))}
-                <div className="flex items-center justify-center gap-1.5 mt-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                  <span className="text-xs font-semibold text-emerald-600">Verslag gereed</span>
-                </div>
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Phase 2: Manual Editing */}
-        {activePhase === 2 && (
-          <div className="flex flex-col items-center gap-4 w-full animate-[fadeIn_0.4s_ease-out_forwards]">
-            <div className="w-full max-w-[320px] flex flex-col gap-2.5">
-              {['S', 'O', 'E', 'P'].map((letter, i) => (
-                <div key={letter} className="flex items-start gap-2.5">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#772d07] text-[10px] font-bold text-white mt-0.5">
-                    {letter}
-                  </span>
-                  <div className={`flex-1 rounded-lg px-2 py-1.5 transition-all duration-500 ${
-                    i === 0 && innerStep === 1
-                      ? 'bg-amber-50 ring-1 ring-amber-300'
-                      : i === 0 && innerStep >= 2
-                        ? 'bg-emerald-50/50'
-                        : ''
-                  }`}>
-                    <div className={`h-2 rounded-full mb-1.5 transition-all duration-500 ${
-                      i === 0 && innerStep >= 1 ? 'bg-[#772d07]/30' : 'bg-slate-200'
-                    }`} style={{ width: `${85 - i * 10}%` }} />
-                    <div className={`h-2 rounded-full transition-all duration-500 ${
-                      i === 0 && innerStep >= 2 ? 'bg-[#772d07]/20 w-[90%]' : 'bg-slate-100'
-                    }`} style={{ width: i === 0 && innerStep >= 2 ? '90%' : `${65 - i * 5}%` }} />
-                    {i === 0 && innerStep === 1 && (
-                      <span className="inline-block w-0.5 h-3 bg-[#772d07] animate-pulse ml-0.5" />
-                    )}
+              <div className={`border-l border-slate-200 bg-slate-50 flex flex-col transition-all duration-500 ease-out overflow-hidden ${panelOpen ? "w-[155px] opacity-100" : "w-0 opacity-0"}`}>
+                <div className="p-3 flex flex-col h-full min-w-[155px]">
+                  <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-slate-200">
+                    <Pencil className="h-3 w-3 text-[#772d07]" />
+                    <span className="text-[10px] font-bold text-slate-600">Opmerking</span>
                   </div>
-                  {i === 0 && innerStep >= 2 && (
-                    <span className="text-[9px] font-semibold text-emerald-500 mt-1 shrink-0">✓</span>
-                  )}
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="flex h-4 w-4 items-center justify-center rounded bg-[#772d07] text-[8px] font-bold text-white">S</span>
+                    <span className="text-[9px] font-semibold text-slate-500">Subjectief</span>
+                  </div>
+                  <div className="flex-1 bg-white rounded-lg border border-slate-200 p-2 mb-2">
+                    <p className="text-[11px] text-slate-700 leading-relaxed break-words">
+                      {step >= 4 ? commentText.slice(0, typedChars) : ""}
+                      {step === 4 && typedChars < commentText.length && <span className="inline-block w-0.5 h-3 bg-[#772d07] animate-pulse ml-px -mb-0.5" />}
+                    </p>
+                    {step < 4 && <p className="text-[10px] text-slate-300 italic">Typ een opmerking...</p>}
+                  </div>
+                  <button className={`w-full py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-300 ${step >= 5 ? "bg-[#772d07] text-white" : "bg-slate-200 text-slate-400"}`}>
+                    Toepassen
+                  </button>
                 </div>
-              ))}
-            </div>
-
-            {innerStep >= 2 && (
-              <div className="flex items-center gap-2 mt-2 animate-[fadeIn_0.3s_ease-out_forwards]">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span className="text-xs font-semibold text-emerald-600">Opgeslagen in dossier</span>
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
@@ -289,11 +400,21 @@ const FeatureShowcase = () => {
         <div className="flex items-center gap-1">
           {[...Array(5)].map((_, i) => (
             <svg key={i} className="h-3 w-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
           ))}
           <span className="text-[11px] font-bold text-slate-600 ml-1">4.9</span>
         </div>
+      </div>
+
+      {/* Mouse cursor */}
+      <div
+        className="absolute z-50 transition-all duration-[600ms] ease-out pointer-events-none"
+        style={{ top: 0, left: 0, transformOrigin: "top left", ...getCursorStyle() }}
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-xl">
+          <path d="M5.5 3.21V20.8C5.5 21.45 6.27 21.8 6.76 21.36L11.44 17.15C11.66 16.95 11.96 16.84 12.26 16.84H18.5C19.16 16.84 19.5 16.06 19.04 15.6L6.54 3.06C6.08 2.6 5.5 2.92 5.5 3.21Z" fill="white" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </div>
     </div>
   );

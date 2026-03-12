@@ -90,7 +90,11 @@ function FAQItem({
 }
 
 export default function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openLeftIndex, setOpenLeftIndex] = useState<number | null>(0);
+  const [openRightIndex, setOpenRightIndex] = useState<number | null>(null);
+
+  const leftFaqs = faqs.slice(0, 4);
+  const rightFaqs = faqs.slice(4, 8);
 
   return (
     <section id="faq" className="bg-cream-100 py-24 lg:py-32">
@@ -101,17 +105,35 @@ export default function FAQ() {
         />
 
         <div className="mt-16 grid gap-6 md:grid-cols-2">
-          {faqs.map((faq, index) => (
-            <FAQItem
-              key={index}
-              question={faq.question}
-              answer={faq.answer}
-              isOpen={openIndex === index}
-              onToggle={() =>
-                setOpenIndex(openIndex === index ? null : index)
-              }
-            />
-          ))}
+          {/* Left column */}
+          <div className="flex flex-col gap-6">
+            {leftFaqs.map((faq, index) => (
+              <FAQItem
+                key={index}
+                question={faq.question}
+                answer={faq.answer}
+                isOpen={openLeftIndex === index}
+                onToggle={() =>
+                  setOpenLeftIndex(openLeftIndex === index ? null : index)
+                }
+              />
+            ))}
+          </div>
+
+          {/* Right column */}
+          <div className="flex flex-col gap-6">
+            {rightFaqs.map((faq, index) => (
+              <FAQItem
+                key={index}
+                question={faq.question}
+                answer={faq.answer}
+                isOpen={openRightIndex === index}
+                onToggle={() =>
+                  setOpenRightIndex(openRightIndex === index ? null : index)
+                }
+              />
+            ))}
+          </div>
         </div>
       </Container>
     </section>

@@ -104,12 +104,13 @@ export default function PhotoGrid() {
                     {category.title}
                   </h3>
 
-                  {/* Description - shows on hover */}
+                  {/* Description - shows on hover with delay */}
                   <div
-                    className="overflow-hidden transition-all duration-500 ease-out"
+                    className="overflow-hidden transition-all duration-700 ease-out"
                     style={{
                       maxHeight: isHovered ? "200px" : "0px",
                       opacity: isHovered ? 1 : 0,
+                      transitionDelay: isHovered ? "300ms" : "0ms",
                     }}
                   >
                     <p className="mb-4 text-sm leading-relaxed text-white/90">
@@ -119,12 +120,13 @@ export default function PhotoGrid() {
                     </p>
                   </div>
 
-                  {/* Learn more button - shows on hover */}
+                  {/* Learn more button - shows on hover with delay */}
                   <div
-                    className="transition-all duration-500 ease-out"
+                    className="transition-all duration-700 ease-out"
                     style={{
                       maxHeight: isHovered ? "60px" : "0px",
                       opacity: isHovered ? 1 : 0,
+                      transitionDelay: isHovered ? "300ms" : "0ms",
                     }}
                   >
                     <button

@@ -75,6 +75,21 @@ export function addGesprek(gesprek: Omit<Gesprek, "id" | "statusColor">): Gespre
   return newGesprek;
 }
 
+export function updateGesprek(id: number, updates: Partial<Omit<Gesprek, "id">>): void {
+  gesprekken = gesprekken.map((g) => {
+    if (g.id === id) {
+      const updated = { ...g, ...updates };
+      // Always recalculate statusColor from status
+      if (updates.status) {
+        updated.statusColor = statusColors[updates.status] || statusColors["Concept"];
+      }
+      return updated;
+    }
+    return g;
+  });
+  notify();
+}
+
 export function deleteGesprek(id: number): void {
   gesprekken = gesprekken.filter((g) => g.id !== id);
   notify();

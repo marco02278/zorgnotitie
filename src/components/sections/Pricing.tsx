@@ -2,180 +2,187 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
+import Container from "@/components/ui/Container";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 const plans = [
   {
-    name: "Starter",
-    description: "Perfect voor kleine praktijken",
-    price: "149",
-    period: "per maand",
+    name: "Trial",
+    subtitle: "Starting at",
+    monthlyPrice: "0",
+    yearlyPrice: "0",
+    description: "Onboard and engage users throughout their lifecycles. Ideal for startups and SMBs like:",
     features: [
-      "Tot 50 gesprekken per maand",
-      "Automatische verslaglegging",
-      "NHG-standaard rapportages",
-      "Basis integraties",
+      "Tot 3 gebruikers",
+      "Basis verslaglegging",
+      "Tot 3 branded themes",
+      "Analytics integraties",
       "Email support",
-      "AVG-compliant opslag",
     ],
+    borderColor: "#772d07",
     highlighted: false,
   },
   {
-    name: "Professional",
-    description: "Voor groeiende zorgorganisaties",
-    price: "349",
-    period: "per maand",
+    name: "Pro",
+    subtitle: "Starting at",
+    monthlyPrice: "249",
+    yearlyPrice: "199",
+    description: "Maximize activation, customer revenue, and retention. Ideal for rapidly growing companies like:",
     features: [
-      "Tot 200 gesprekken per maand",
-      "Geavanceerde AI-verslaglegging",
-      "Alle rapportage templates",
-      "Premium integraties (EPD/HIS)",
-      "Prioriteit support (24/7)",
-      "Team collaboration tools",
-      "Custom workflows",
-      "API toegang",
+      "Tot 10 gebruikers",
+      "Geavanceerde targeting en engagement patterns",
+      "Volledig aanpasbare themes",
+      "Toegang tot alle integraties",
+      "Dedicated Customer Success Manager",
     ],
+    borderColor: "#772d07",
     highlighted: true,
-    badge: "Meest gekozen",
   },
   {
-    name: "Enterprise",
-    description: "Voor grote ziekenhuizen en GGZ",
-    price: "Op maat",
-    period: "neem contact op",
+    name: "Business",
+    subtitle: "Let's talk",
+    monthlyPrice: null,
+    yearlyPrice: null,
+    description: "Transform your product experience. Ideal for businesses with >500 employees or multiple products like:",
     features: [
-      "Onbeperkt aantal gesprekken",
-      "Dedicated AI-model training",
-      "Volledige EPD/HIS integratie",
-      "Dedicated account manager",
-      "24/7 premium support",
-      "On-premise deployment optie",
-      "Custom feature development",
-      "SLA garanties",
-      "Training & onboarding",
+      "Onbeperkt aantal gebruikers",
+      "Extra targeting en pattern customization",
+      "Enterprise account administratie",
+      "Enhanced Security & SLA",
+      "Premium support en services",
     ],
+    borderColor: "#772d07",
     highlighted: false,
   },
 ];
 
 export default function Pricing() {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [isYearly, setIsYearly] = useState(false);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-cream-50 to-white py-24">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -left-4 top-0 h-72 w-72 rounded-full bg-primary-100/30 blur-3xl" />
-        <div className="absolute -right-4 bottom-0 h-72 w-72 rounded-full bg-primary-100/30 blur-3xl" />
-      </div>
+    <section id="pricing" className="relative bg-white py-24 lg:py-32">
+      <Container>
+        <SectionHeading
+          title="Transparante prijzen"
+          subtitle="Kies het plan dat past bij uw praktijk. Geen verborgen kosten, altijd opzegbaar."
+        />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 text-4xl font-bold text-slate-800 sm:text-5xl lg:text-6xl">
-            Transparante prijzen
-          </h2>
-          <p className="mx-auto max-w-2xl text-lg text-slate-600 sm:text-xl">
-            Kies het plan dat past bij uw praktijk. Geen verborgen kosten, altijd opzegbaar.
-          </p>
+        {/* Billing toggle */}
+        <div className="mt-12 flex flex-col items-center gap-4">
+          <div className="flex items-center justify-center gap-3">
+            <span className={`text-sm font-medium transition-colors ${!isYearly ? 'text-slate-900' : 'text-slate-500'}`}
+              style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+              Maandelijks
+            </span>
+            <button
+              onClick={() => setIsYearly(!isYearly)}
+              className="relative h-7 w-12 rounded-full bg-slate-200 transition-colors hover:bg-slate-300"
+              style={{ backgroundColor: isYearly ? '#772d07' : undefined }}
+            >
+              <div
+                className="absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform"
+                style={{ transform: isYearly ? 'translateX(22px)' : 'translateX(2px)' }}
+              />
+            </button>
+            <span className={`text-sm font-medium transition-colors ${isYearly ? 'text-slate-900' : 'text-slate-500'}`}
+              style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+              Jaarlijks
+            </span>
+          </div>
+          {isYearly && (
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700"
+              style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+              Bespaar 20%
+            </span>
+          )}
         </div>
 
         {/* Pricing cards */}
-        <div className="grid gap-8 lg:grid-cols-3">
-          {plans.map((plan, index) => {
-            const isHovered = hoveredIndex === index;
+        <div className="mt-12 grid gap-6 lg:grid-cols-3 lg:gap-8">
+          {plans.map((plan) => {
+            const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
             const isHighlighted = plan.highlighted;
 
             return (
               <div
                 key={plan.name}
-                className={`relative flex flex-col rounded-2xl border-2 bg-white p-8 shadow-lg transition-all duration-300 ${
-                  isHighlighted
-                    ? "border-primary-500 shadow-primary-500/20 lg:scale-105"
-                    : "border-slate-200"
-                } ${isHovered && !isHighlighted ? "scale-105 shadow-xl" : ""}`}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
+                className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl"
               >
-                {/* Badge */}
-                {plan.badge && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="rounded-full bg-primary-500 px-4 py-1 text-sm font-semibold text-white shadow-lg">
-                      {plan.badge}
-                    </span>
+                {/* Colored top border */}
+                <div className="h-1" style={{ backgroundColor: plan.borderColor }} />
+
+                <div className="flex flex-1 flex-col p-8">
+                  {/* Plan name */}
+                  <div className="mb-6 text-center">
+                    <h3 className="mb-2 text-2xl font-bold uppercase tracking-wide text-slate-400"
+                      style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                      {plan.name}
+                    </h3>
                   </div>
-                )}
 
-                {/* Plan header */}
-                <div className="mb-6">
-                  <h3 className="mb-2 text-2xl font-bold text-slate-800">
-                    {plan.name}
-                  </h3>
-                  <p className="text-sm text-slate-600">{plan.description}</p>
-                </div>
-
-                {/* Price */}
-                <div className="mb-6">
-                  {plan.price === "Op maat" ? (
-                    <div>
-                      <div className="text-4xl font-bold text-slate-800">
-                        {plan.price}
-                      </div>
-                      <div className="mt-1 text-sm text-slate-600">
-                        {plan.period}
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="flex items-baseline">
-                        <span className="text-5xl font-bold text-slate-800">
-                          €{plan.price}
-                        </span>
-                        <span className="ml-2 text-slate-600">/{plan.period.split(" ")[1]}</span>
-                      </div>
-                      <div className="mt-1 text-sm text-slate-600">
-                        Excl. BTW
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* CTA Button */}
-                <button
-                  className={`mb-8 w-full rounded-xl py-4 font-semibold transition-all duration-300 ${
-                    isHighlighted
-                      ? "bg-primary-500 text-white shadow-lg hover:bg-primary-600 hover:shadow-xl"
-                      : "border-2 border-slate-300 bg-white text-slate-800 hover:border-primary-500 hover:bg-primary-50"
-                  }`}
-                >
-                  {plan.price === "Op maat" ? "Neem contact op" : "Start gratis proefperiode"}
-                </button>
-
-                {/* Features */}
-                <div className="flex-1">
-                  <ul className="space-y-4">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li
-                        key={featureIndex}
-                        className="flex items-start gap-3"
-                        style={{
-                          animation: isHovered
-                            ? `slideIn 0.3s ease-out ${featureIndex * 0.05}s both`
-                            : "none",
-                        }}
-                      >
-                        <div
-                          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                            isHighlighted
-                              ? "bg-primary-100 text-primary-600"
-                              : "bg-slate-100 text-slate-600"
-                          }`}
-                        >
-                          <Check className="h-3 w-3" strokeWidth={3} />
+                  {/* Price */}
+                  <div className="mb-6 text-center">
+                    {price ? (
+                      <>
+                        <p className="mb-2 text-sm text-slate-500"
+                          style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                          {plan.subtitle}
+                        </p>
+                        <div className="flex items-baseline justify-center gap-1">
+                          <span className="text-5xl font-bold text-slate-900"
+                            style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                            €{price}
+                          </span>
+                          <span className="text-xl text-slate-600">/mo</span>
                         </div>
-                        <span className="text-sm text-slate-700">{feature}</span>
+                        {isYearly && (
+                          <p className="mt-1 text-xs text-slate-500"
+                            style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                            betaald jaarlijks
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-4xl font-bold text-slate-900"
+                        style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                        {plan.subtitle}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  <p className="mb-6 text-sm leading-relaxed text-slate-600"
+                    style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                    {plan.description}
+                  </p>
+
+                  {/* Includes label */}
+                  <p className="mb-4 text-sm font-semibold text-slate-900"
+                    style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                    {plan.name === 'Pro' ? 'Everything in Essentials, plus:' : plan.name === 'Business' ? 'Everything in Growth, plus:' : 'Includes:'}
+                  </p>
+
+                  {/* Features */}
+                  <ul className="mb-8 flex-1 space-y-3">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm text-slate-700"
+                        style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                        <span className="text-slate-400">•</span>
+                        <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
+
+                  {/* CTA Button */}
+                  <button
+                    className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-all hover:opacity-90"
+                    style={{
+                      backgroundColor: '#772d07',
+                      fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif'
+                    }}
+                  >
+                    {plan.name === 'Business' ? 'Request a demo' : 'Test it out'}
+                  </button>
                 </div>
               </div>
             );
@@ -184,30 +191,17 @@ export default function Pricing() {
 
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
-          <p className="mb-4 text-slate-600">
+          <p className="mb-6 text-base text-slate-600">
             Niet zeker welk plan bij u past?
           </p>
           <a
             href="#contact"
-            className="inline-flex items-center gap-2 rounded-xl border-2 border-primary-500 bg-white px-8 py-3 font-semibold text-primary-600 transition-all hover:bg-primary-50"
+            className="inline-flex items-center gap-2 rounded-xl border-2 border-[#772d07] bg-white px-8 py-3.5 text-sm font-semibold text-[#772d07] transition-all hover:bg-[#772d07] hover:text-white hover:shadow-lg"
           >
             Plan vergelijking aanvragen
           </a>
         </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-      `}</style>
+      </Container>
     </section>
   );
 }

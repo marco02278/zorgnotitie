@@ -1,10 +1,10 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Play, Download, FileText, Edit, Trash2, Clock, User, Calendar, Stethoscope, Hash } from "lucide-react";
-import { getGesprekken, subscribe } from "../../store";
+import { ArrowLeft, Play, Download, FileText, Edit, Trash2, Clock, User, Calendar, Stethoscope, Hash, PlayCircle, Save, X } from "lucide-react";
+import { getGesprekken, subscribe, updateGesprek, deleteGesprek } from "../../store";
 
 export default function GesprekDetailPage() {
   const params = useParams();
@@ -13,19 +13,87 @@ export default function GesprekDetailPage() {
   
   const gesprekId = parseInt(params.id as string);
   const gesprek = gesprekken.find((g) => g.id === gesprekId);
+  
+  const handleResume = () => {
+    sessionStorage.setItem('opname_returning', 'true');
+    sessionStorage.setItem('resume_gesprek_id', gesprekId.toString());
+    router.push('/dashboard/opname');
+  };
+  
+  const handleEditTranscript = () => {
+    sessionStorage.setItem('opname_returning', 'true');
+    sessionStorage.setItem('resume_gesprek_id', gesprekId.toString());
+    sessionStorage.setItem('edit_mode', 'transcript');
+    router.push('/dashboard/opname');
+  };
+  
+  const handleEditVerslag = () => {
+    sessionStorage.setItem('opname_returning', 'true');
+    sessionStorage.setItem('resume_gesprek_id', gesprekId.toString());
+    sessionStorage.setItem('edit_mode', 'verslag');
+    router.push('/dashboard/opname');
+  };
+  
+  const handleDownloadAll = () => {
+    if (!gesprek) return;
+    
+    let content = `VERSLAG - ${gesprek.patientName}\n`;
+    content += `Gegenereerd op: ${new Date().toLocaleString('nl-NL')}\n\n`;
+    content += "=".repeat(80) + "\n\n";
+    
+    content += `Patiënt: ${gesprek.patientName}\n`;
+    content += `Patiënt-ID: ${gesprek.patientId}\n`;
+    content += `Datum: ${gesprek.date} om ${gesprek.time}\n`;
+    content += `Status: ${gesprek.status}\n`;
+    content += `Duur: ${gesprek.duration}\n`;
+    if (gesprek.specialisme) content += `Specialisme: ${gesprek.specialisme}\n`;
+    if (gesprek.verslagtype) content += `Verslagtype: ${gesprek.verslagtype}\n`;
+    if (gesprek.dossiernummer) content += `Dossiernummer: ${gesprek.dossiernummer}\n`;
+    content += "\n" + "=".repeat(80) + "\n\n";
+    
+    if (gesprek.hasTranscript) {
+      content += "TRANSCRIPTIE:\n";
+      content += "-".repeat(80) + "\n";
+      content += "[Transcriptie wordt hier weergegeven zodra deze beschikbaar is. In een productieomgeving zou hier de daadwerkelijke transcriptie staan, gegenereerd door AI.]\n\n";
+      content += "=".repeat(80) + "\n\n";
+    }
+    
+    if (gesprek.hasSummary) {
+      content += "VERSLAG:\n";
+      content += "-".repeat(80) + "\n";
+      content += "[Verslag wordt hier weergegeven zodra deze beschikbaar is. In een productieomgeving zou hier het daadwerkelijke verslag staan, gegenereerd door AI.]\n\n";
+    }
+    
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `verslag-${gesprek.patientId}-${gesprek.id}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  
+  const handleDelete = () => {
+    if (!gesprek) return;
+    
+    if (confirm(`Weet je zeker dat je dit verslag van ${gesprek.patientName} wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.`)) {
+      deleteGesprek(gesprek.id);
+      router.push('/dashboard/verslagen');
+    }
+  };
 
   if (!gesprek) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <p className="mb-4 text-lg text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-          Gesprek niet gevonden
+          Verslag niet gevonden
         </p>
         <Link
-          href="/dashboard/gesprekken"
+          href="/dashboard/verslagen"
           className="text-[14px] font-semibold text-[#772d07] hover:text-[#5a2205]"
           style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
         >
-          ← Terug naar gesprekken
+          ← Terug naar verslagen
         </Link>
       </div>
     );
@@ -39,11 +107,11 @@ export default function GesprekDetailPage() {
           Dashboard
         </Link>
         <span>/</span>
-        <Link href="/dashboard/gesprekken" className="transition-colors hover:text-[#772d07]">
-          Gesprekken
+        <Link href="/dashboard/verslagen" className="transition-colors hover:text-[#772d07]">
+          Verslagen
         </Link>
         <span>/</span>
-        <span className="text-slate-800">Gesprek #{gesprek.id}</span>
+        <span className="text-slate-800">Verslag #{gesprek.id}</span>
       </div>
 
       {/* Header */}
@@ -61,17 +129,29 @@ export default function GesprekDetailPage() {
             </span>
           </div>
           <p className="text-[14px] text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-            Gesprek opgenomen op {gesprek.date} om {gesprek.time}
+            Opgenomen op {gesprek.date} om {gesprek.time}
           </p>
         </div>
-        <Link
-          href="/dashboard/gesprekken"
-          className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[14px] font-semibold text-slate-700 transition-all hover:border-[#772d07]/30 hover:text-[#772d07]"
-          style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Terug
-        </Link>
+        <div className="flex items-center gap-3">
+          {(gesprek.status === "Concept" || gesprek.status === "In Verwerking") && (
+            <button
+              onClick={handleResume}
+              className="flex items-center gap-2 rounded-xl bg-[#772d07] px-6 py-2.5 text-[14px] font-semibold text-white transition-all hover:bg-[#5a2205] hover:shadow-lg"
+              style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
+            >
+              <PlayCircle className="h-4 w-4" />
+              Verder afmaken
+            </button>
+          )}
+          <Link
+            href="/dashboard/verslagen"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[14px] font-semibold text-slate-700 transition-all hover:border-[#772d07]/30 hover:text-[#772d07]"
+            style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Terug
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -105,7 +185,7 @@ export default function GesprekDetailPage() {
               <div className="flex items-center gap-3 text-slate-400">
                 <Play className="h-6 w-6" />
                 <p className="text-[14px]" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-                  Geen audio beschikbaar voor dit gesprek
+                  Geen audio beschikbaar voor dit verslag
                 </p>
               </div>
             </div>
@@ -121,16 +201,25 @@ export default function GesprekDetailPage() {
                 Transcriptie
               </h3>
               {gesprek.hasTranscript && (
-                <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] font-semibold text-[#772d07] transition-colors hover:bg-[#772d07]/5">
-                  <Download className="h-3.5 w-3.5" />
-                  Download
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={handleEditTranscript}
+                    className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] font-semibold text-[#772d07] transition-colors hover:bg-[#772d07]/5"
+                  >
+                    <Edit className="h-3.5 w-3.5" />
+                    Bewerken
+                  </button>
+                  <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] font-semibold text-[#772d07] transition-colors hover:bg-[#772d07]/5">
+                    <Download className="h-3.5 w-3.5" />
+                    Download
+                  </button>
+                </div>
               )}
             </div>
             {gesprek.hasTranscript ? (
               <div className="rounded-xl bg-[#faf6f0] p-6">
                 <p className="text-[14px] leading-relaxed text-slate-700" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-                  [Transcriptie wordt hier weergegeven zodra deze beschikbaar is. In een productieomgeving zou hier de daadwerkelijke transcriptie van het gesprek staan, gegenereerd door AI.]
+                  [Transcriptie wordt hier weergegeven zodra deze beschikbaar is. In een productieomgeving zou hier de daadwerkelijke transcriptie staan, gegenereerd door AI.]
                 </p>
               </div>
             ) : (
@@ -155,20 +244,31 @@ export default function GesprekDetailPage() {
                 Verslag
               </h3>
               {gesprek.hasSummary && (
-                <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] font-semibold text-[#772d07] transition-colors hover:bg-[#772d07]/5">
-                  <Download className="h-3.5 w-3.5" />
-                  Download
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={handleEditVerslag}
+                    className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] font-semibold text-[#772d07] transition-colors hover:bg-[#772d07]/5"
+                  >
+                    <Edit className="h-3.5 w-3.5" />
+                    Bewerken
+                  </button>
+                  <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] font-semibold text-[#772d07] transition-colors hover:bg-[#772d07]/5">
+                    <Download className="h-3.5 w-3.5" />
+                    Download
+                  </button>
+                </div>
               )}
             </div>
             {gesprek.hasSummary ? (
-              <div className="rounded-xl bg-[#faf6f0] p-6">
+              <div>
                 <p className="mb-4 text-[13px] font-semibold text-slate-600" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
                   {gesprek.verslagtype || "SOEP-structuur"}
                 </p>
-                <p className="text-[14px] leading-relaxed text-slate-700" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-                  [Hier komt het gegenereerde verslag volgens het gekozen template. In een productieomgeving zou dit een AI-gegenereerde samenvatting zijn van het gesprek.]
-                </p>
+                <div className="rounded-xl bg-[#faf6f0] p-6">
+                  <p className="text-[14px] leading-relaxed text-slate-700" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                    [Verslag wordt hier weergegeven zodra deze beschikbaar is. In een productieomgeving zou hier het daadwerkelijke verslag staan, gegenereerd door AI.]
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center">
@@ -178,9 +278,13 @@ export default function GesprekDetailPage() {
                     ? "Verslag wordt gegenereerd..."
                     : "Nog geen verslag beschikbaar"}
                 </p>
-                {gesprek.status === "Concept" && (
-                  <button className="mt-4 rounded-xl bg-[#772d07] px-6 py-2.5 text-[13px] font-semibold text-white transition-all hover:bg-[#5a2205]">
-                    Verslag genereren
+                {(gesprek.status === "Concept" || gesprek.status === "In Verwerking") && (
+                  <button 
+                    onClick={handleResume}
+                    className="mt-4 flex items-center gap-2 rounded-xl bg-[#772d07] px-6 py-2.5 text-[13px] font-semibold text-white transition-all hover:bg-[#5a2205]"
+                  >
+                    <PlayCircle className="h-4 w-4" />
+                    Verder afmaken
                   </button>
                 )}
               </div>
@@ -288,17 +392,26 @@ export default function GesprekDetailPage() {
               Acties
             </h3>
             <div className="space-y-2">
-              {gesprek.status === "Concept" && (
-                <button className="flex w-full items-center gap-3 rounded-xl bg-[#772d07]/5 px-4 py-3 text-[14px] font-semibold text-[#772d07] transition-all hover:bg-[#772d07]/10">
-                  <Edit className="h-4 w-4" />
-                  Bewerken
+              {(gesprek.status === "Concept" || gesprek.status === "In Verwerking") && (
+                <button 
+                  onClick={handleResume}
+                  className="flex w-full items-center gap-3 rounded-xl bg-[#772d07]/5 px-4 py-3 text-[14px] font-semibold text-[#772d07] transition-all hover:bg-[#772d07]/10"
+                >
+                  <PlayCircle className="h-4 w-4" />
+                  Verder afmaken
                 </button>
               )}
-              <button className="flex w-full items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 text-[14px] font-semibold text-slate-700 transition-all hover:bg-slate-100">
+              <button 
+                onClick={handleDownloadAll}
+                className="flex w-full items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 text-[14px] font-semibold text-slate-700 transition-all hover:bg-slate-100"
+              >
                 <Download className="h-4 w-4" />
                 Download alles
               </button>
-              <button className="flex w-full items-center gap-3 rounded-xl bg-red-50 px-4 py-3 text-[14px] font-semibold text-red-600 transition-all hover:bg-red-100">
+              <button 
+                onClick={handleDelete}
+                className="flex w-full items-center gap-3 rounded-xl bg-red-50 px-4 py-3 text-[14px] font-semibold text-red-600 transition-all hover:bg-red-100"
+              >
                 <Trash2 className="h-4 w-4" />
                 Verwijderen
               </button>

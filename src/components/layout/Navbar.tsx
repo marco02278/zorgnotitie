@@ -5,12 +5,14 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
-  { label: "About", href: "#about" },
-  { label: "Service", href: "#service" },
-  { label: "Our Process", href: "#hoe-werkt-het" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Reviews", href: "#reviews" },
-  { label: "Contact Us", href: "#contact" },
+  { label: "Werkwijze", href: "#hoe-werkt-het" },
+  { label: "Veiligheid", href: "#veiligheid" },
+  { label: "Templates", href: "#templates" },
+  { label: "API", href: "#api" },
+  { label: "Over", href: "#over-ons" },
+  { label: "Prijzen", href: "#pricing" },
+  { label: "FAQ", href: "#faq" },
+  { label: "Contact", href: "#contact" },
 ];
 
 export default function Navbar() {
@@ -77,7 +79,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right side - Dashboard + Contact buttons */}
+          {/* Right side - Dashboard button only */}
           <div className="hidden items-center gap-3 lg:flex">
             <a
               href="/dashboard"
@@ -88,15 +90,6 @@ export default function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
               </svg>
               Dashboard
-            </a>
-            <a
-              href="#contact"
-              className="group relative inline-flex items-center overflow-hidden rounded-full bg-[#772d07] px-6 py-2.5 text-[14px] font-semibold text-white transition-all duration-500"
-            >
-              <span className="absolute inset-0 z-0 origin-left scale-x-0 bg-white transition-transform duration-500 ease-out group-hover:scale-x-100" />
-              <span className="relative z-10 transition-colors duration-500 group-hover:text-[#772d07]">
-                Contact
-              </span>
             </a>
           </div>
 

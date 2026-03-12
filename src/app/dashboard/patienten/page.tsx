@@ -3,6 +3,7 @@
 import { useState, useMemo, useSyncExternalStore } from "react";
 import { Search, UserPlus, Phone, Mail, FileText, ChevronRight } from "lucide-react";
 import { getGesprekken, subscribe } from "../store";
+import Link from "next/link";
 
 export default function PatientenPage() {
   const gesprekken = useSyncExternalStore(subscribe, getGesprekken, getGesprekken);
@@ -76,8 +77,9 @@ export default function PatientenPage() {
       {/* Patient cards grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((patient) => (
-          <div
+          <Link
             key={patient.id}
+            href={`/dashboard/patienten/${patient.id}`}
             className="group cursor-pointer rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:border-[#772d07]/20 hover:shadow-md"
           >
             <div className="mb-4 flex items-center justify-between">
@@ -100,13 +102,13 @@ export default function PatientenPage() {
               <span
                 className="rounded-full bg-green-100 px-3 py-1 text-[11px] font-semibold text-green-700"
               >
-                {patient.totalGesprekken} gesprek{patient.totalGesprekken !== 1 ? "ken" : ""}
+                {patient.totalGesprekken} verslag{patient.totalGesprekken !== 1 ? "en" : ""}
               </span>
             </div>
 
             <div className="mb-4 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-[#faf6f0] p-3">
-                <p className="text-[11px] text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>Gesprekken</p>
+                <p className="text-[11px] text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>Verslagen</p>
                 <p className="text-[18px] font-bold text-[#772d07]" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
                   {patient.totalGesprekken}
                 </p>
@@ -133,7 +135,7 @@ export default function PatientenPage() {
               </div>
               <ChevronRight className="h-4 w-4 text-slate-300 transition-colors group-hover:text-[#772d07]" />
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

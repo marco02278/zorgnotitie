@@ -28,7 +28,7 @@ export default function DashboardPage() {
             className="mb-4 text-lg font-bold text-slate-900"
             style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
           >
-            Nieuw Gesprek Opnemen
+            Nieuwe Opname Starten
           </h3>
           <Link
             href="/dashboard/opname"
@@ -70,7 +70,7 @@ export default function DashboardPage() {
               ))
             ) : (
               <p className="text-[14px] text-slate-400" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-                Geen gesprekken in verwerking
+                Geen verslagen in verwerking
               </p>
             )}
           </div>
@@ -87,7 +87,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <div>
               <p className="text-[13px] text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-                Gesprekstijd deze maand:
+                Opnametijd deze maand:
               </p>
               <p className="text-[28px] font-bold text-[#772d07]" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
                 {totalMinutes} minuten
@@ -112,7 +112,7 @@ export default function DashboardPage() {
             className="text-lg font-bold text-slate-900"
             style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
           >
-            Recent Gesprekken
+            Recente Verslagen
           </h3>
           <button className="text-slate-400 hover:text-slate-600">
             <span className="text-lg tracking-wider">•••</span>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
             })
           ) : (
             <p className="text-[14px] text-slate-400" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-              Nog geen gesprekken
+              Nog geen verslagen
             </p>
           )}
         </div>
@@ -143,11 +143,11 @@ export default function DashboardPage() {
         {/* Action buttons */}
         <div className="mt-6 flex flex-wrap gap-4">
           <Link
-            href="/dashboard/gesprekken"
+            href="/dashboard/verslagen"
             className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-[14px] font-semibold text-slate-700 transition-all hover:border-[#772d07]/30 hover:text-[#772d07]"
             style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
           >
-            ← Alle Gesprekken Bekijken
+            ← Alle Verslagen Bekijken
           </Link>
           <Link
             href="#"
@@ -166,7 +166,7 @@ export default function DashboardPage() {
           className="mb-6 text-lg font-bold text-slate-900"
           style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
         >
-          Mijn Gesprekken
+          Mijn Verslagen
         </h3>
 
         {/* Table header */}
@@ -188,7 +188,11 @@ export default function DashboardPage() {
         {/* Table rows */}
         <div className="divide-y divide-slate-100">
           {tableData.map((row, i) => (
-            <div key={i} className="grid grid-cols-4 items-center py-4">
+            <Link
+              key={i}
+              href={`/dashboard/verslagen/${row.id}`}
+              className="grid grid-cols-4 items-center py-4 transition-colors hover:bg-slate-50/50"
+            >
               <p className="text-[14px] text-slate-700" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
                 {row.date}
               </p>
@@ -201,29 +205,11 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                {row.status === "Concept" && (
-                  <button className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#772d07]">
-                    <Edit className="h-4 w-4" />
-                  </button>
-                )}
-                {row.status === "In Verwerking" && (
-                  <button className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-amber-600">
-                    <RefreshCw className="h-4 w-4" />
-                  </button>
-                )}
-                <button className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#772d07]">
-                  <Download className="h-4 w-4" />
-                </button>
-                <button className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#772d07]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#772d07]">
                   <ExternalLink className="h-4 w-4" />
-                </button>
-                {row.status === "Concept" && (
-                  <button className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                )}
+                </span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

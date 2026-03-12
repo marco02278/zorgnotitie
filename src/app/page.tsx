@@ -10,6 +10,7 @@ import Templates from "@/components/sections/Templates";
 import APIIntegrations from "@/components/sections/APIIntegrations";
 import TestimonialsAnimated from "@/components/sections/TestimonialsAnimated";
 import AboutUs from "@/components/sections/AboutUs";
+import Pricing from "@/components/sections/Pricing";
 import FAQ from "@/components/sections/FAQ";
 import Contact from "@/components/sections/Contact";
 import CTA from "@/components/sections/CTA";
@@ -23,21 +24,24 @@ export default function Home() {
         <div id="about">
           <VideoStats />
         </div>
-        <div id="service">
-          <HowItWorksAnimated />
+        <HowItWorksAnimated />
+        <div id="veiligheid">
           <Compliance />
-          <PhotoGrid />
         </div>
+        <PhotoGrid />
         <ClientLogos />
-        <div id="hoe-werkt-het">
+        <div id="templates">
           <Templates />
+        </div>
+        <div id="api">
           <APIIntegrations />
         </div>
-        <div id="pricing">
-          <TestimonialsAnimated />
-        </div>
-        <div id="reviews">
+        <TestimonialsAnimated />
+        <div id="over-ons">
           <AboutUs />
+        </div>
+        <div id="pricing">
+          <Pricing />
         </div>
         <FAQ />
         <div id="contact">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Mic, Search, Filter, Download, ExternalLink, Edit, Trash2, RefreshCw, Play, FileText, CheckSquare, Square } from "lucide-react";
 import { getGesprekken, subscribe, deleteGesprek, deleteMultipleGesprekken } from "../store";
 
-export default function GesprekkenPage() {
+export default function VerslagenPage() {
   const gesprekken = useSyncExternalStore(subscribe, getGesprekken, getGesprekken);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("Alle");
@@ -33,7 +33,7 @@ export default function GesprekkenPage() {
 
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return;
-    if (confirm(`Weet je zeker dat je ${selectedIds.length} gesprek(ken) wilt verwijderen?`)) {
+    if (confirm(`Weet je zeker dat je ${selectedIds.length} verslag(en) wilt verwijderen?`)) {
       deleteMultipleGesprekken(selectedIds);
       setSelectedIds([]);
     }
@@ -42,7 +42,7 @@ export default function GesprekkenPage() {
   const handleDeleteSingle = (e: React.MouseEvent, id: number) => {
     e.preventDefault();
     e.stopPropagation();
-    if (confirm('Weet je zeker dat je dit gesprek wilt verwijderen?')) {
+    if (confirm('Weet je zeker dat je dit verslag wilt verwijderen?')) {
       deleteGesprek(id);
       setSelectedIds((prev) => prev.filter((i) => i !== id));
     }
@@ -57,10 +57,10 @@ export default function GesprekkenPage() {
             className="text-2xl font-bold text-slate-900"
             style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
           >
-            Gesprekken
+            Verslagen
           </h2>
           <p className="mt-1 text-[14px] text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-            Bekijk en beheer al je opgenomen gesprekken
+            Bekijk en beheer al je verslagen
           </p>
         </div>
         <Link
@@ -68,7 +68,7 @@ export default function GesprekkenPage() {
           className="flex items-center gap-2 rounded-xl bg-[#772d07] px-6 py-3 text-[14px] font-semibold text-white transition-all hover:bg-[#5a2205] hover:shadow-lg"
         >
           <Mic className="h-4 w-4" />
-          Nieuw Gesprek
+          Nieuwe Opname
         </Link>
       </div>
 
@@ -76,7 +76,7 @@ export default function GesprekkenPage() {
       {selectedIds.length > 0 && (
         <div className="mb-4 flex items-center justify-between rounded-xl border border-[#772d07]/20 bg-[#faf6f0] px-6 py-3">
           <p className="text-[14px] font-semibold text-slate-700" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
-            {selectedIds.length} gesprek(ken) geselecteerd
+            {selectedIds.length} verslag(en) geselecteerd
           </p>
           <button
             onClick={handleDeleteSelected}
@@ -124,7 +124,7 @@ export default function GesprekkenPage() {
       {/* Table */}
       <div className="rounded-2xl border border-slate-200/60 bg-white shadow-sm">
         {/* Table header */}
-        <div className="grid grid-cols-9 gap-4 border-b border-slate-100 px-6 py-4">
+        <div className="grid grid-cols-7 gap-4 border-b border-slate-100 px-6 py-4">
           <div className="flex items-center">
             <button
               onClick={toggleSelectAll}
@@ -145,16 +145,15 @@ export default function GesprekkenPage() {
           <p className="text-[13px] font-semibold text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>ID</p>
           <p className="text-[13px] font-semibold text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>Duur</p>
           <p className="text-[13px] font-semibold text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>Status</p>
-          <p className="text-[13px] font-semibold text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>Bestanden</p>
-          <p className="text-[13px] font-semibold text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>Acties</p>
         </div>
 
         {/* Table rows */}
         <div className="divide-y divide-slate-100">
           {filteredGesprekken.map((row) => (
-            <div
+            <Link
               key={row.id}
-              className="grid grid-cols-9 items-center gap-4 px-6 py-4 transition-colors hover:bg-slate-50/50"
+              href={`/dashboard/verslagen/${row.id}`}
+              className="grid grid-cols-7 items-center gap-4 px-6 py-4 transition-colors hover:bg-slate-50/50"
             >
               <div className="flex items-center">
                 <button
@@ -172,7 +171,6 @@ export default function GesprekkenPage() {
                   {selectedIds.includes(row.id) && <CheckSquare className="h-4 w-4" />}
                 </button>
               </div>
-              <Link href={`/dashboard/gesprekken/${row.id}`} className="contents">
               <p className="text-[14px] text-slate-700" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>{row.date}</p>
               <p className="text-[14px] text-slate-500" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>{row.time}</p>
               <p className="text-[14px] font-medium text-slate-800" style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>{row.patientName}</p>
@@ -183,37 +181,7 @@ export default function GesprekkenPage() {
                   {row.status}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                {row.hasTranscript && (
-                  <span className="flex items-center gap-1 rounded-md bg-[#faf6f0] px-2 py-1 text-[11px] font-medium text-[#772d07]">
-                    <FileText className="h-3 w-3" /> Transcript
-                  </span>
-                )}
-                {row.hasSummary && (
-                  <span className="flex items-center gap-1 rounded-md bg-[#faf6f0] px-2 py-1 text-[11px] font-medium text-[#772d07]">
-                    <FileText className="h-3 w-3" /> Verslag
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-1">
-                {row.audioUrl && (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg text-[#772d07] bg-[#772d07]/5" title="Audio beschikbaar">
-                    <Play className="h-4 w-4" />
-                  </div>
-                )}
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#772d07]" title="Bekijken">
-                  <ExternalLink className="h-4 w-4" />
-                </div>
-                <button
-                  onClick={(e) => handleDeleteSingle(e, row.id)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                  title="Verwijderen"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-              </Link>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

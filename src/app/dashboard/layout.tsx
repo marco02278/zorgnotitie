@@ -16,9 +16,8 @@ import {
 
 const sidebarLinks = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Gesprekken", href: "/dashboard/gesprekken", icon: Mic },
+  { label: "Verslagen", href: "/dashboard/verslagen", icon: FileText },
   { label: "Patiënten", href: "/dashboard/patienten", icon: Users },
-  { label: "Rapportages", href: "/dashboard/rapportages", icon: FileText },
   { label: "Instellingen", href: "/dashboard/instellingen", icon: Settings },
 ];
 
@@ -54,7 +53,9 @@ export default function DashboardLayout({
         {/* Nav links */}
         <nav className="mt-4 flex-1 space-y-1 px-3">
           {sidebarLinks.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive = link.href === "/dashboard" 
+              ? pathname === "/dashboard" 
+              : pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}

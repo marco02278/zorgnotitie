@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import Image from "next/image";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { Mic, Brain, FileText, FolderOpen, Loader2, Check, Pencil, ChevronDown } from "lucide-react";
+import { Mic, Brain, FileText, FolderOpen, Loader2, Check, Pencil, ChevronDown, Upload, Shield } from "lucide-react";
 
 // The animated overlay component for the first step
 const RecordingSequence = () => {
@@ -376,46 +375,98 @@ const TemplateSequence = () => {
 // Animation for Step 3: Manually editing the report
 const EditSequence = () => {
   const [step, setStep] = useState(0);
+  const [typedChars, setTypedChars] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [sectionPos, setSectionPos] = useState({ x: 120, y: 130 });
+
+  const commentText = 'Oorzaak toevoegen: pijn begon na het tillen van een zware doos';
+
+  useEffect(() => {
+    const measure = () => {
+      if (containerRef.current && sectionRef.current) {
+        const cRect = containerRef.current.getBoundingClientRect();
+        const sRect = sectionRef.current.getBoundingClientRect();
+        setSectionPos({
+          x: sRect.left - cRect.left + sRect.width * 0.4,
+          y: sRect.top - cRect.top + sRect.height / 2,
+        });
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  // Re-measure after report renders
+  useEffect(() => {
+    if (step === 1) {
+      const timer = setTimeout(() => {
+        if (containerRef.current && sectionRef.current) {
+          const cRect = containerRef.current.getBoundingClientRect();
+          const sRect = sectionRef.current.getBoundingClientRect();
+          setSectionPos({
+            x: sRect.left - cRect.left + sRect.width * 0.4,
+            y: sRect.top - cRect.top + sRect.height / 2,
+          });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
+
+  // Typing animation: type letters one by one
+  useEffect(() => {
+    if (step === 5) {
+      setTypedChars(0);
+      let i = 0;
+      const interval = setInterval(() => {
+        i++;
+        setTypedChars(i);
+        if (i >= commentText.length) clearInterval(interval);
+      }, 45);
+      return () => clearInterval(interval);
+    }
+  }, [step]);
 
   useEffect(() => {
     let mounted = true;
     const run = async () => {
       while (mounted) {
-        setStep(0); await new Promise(r => setTimeout(r, 500)); if (!mounted) break;
+        setStep(0); setTypedChars(0); await new Promise(r => setTimeout(r, 500)); if (!mounted) break;
         setStep(1); await new Promise(r => setTimeout(r, 1200)); if (!mounted) break; // show report
-        setStep(2); await new Promise(r => setTimeout(r, 800)); if (!mounted) break; // cursor moves to text
-        setStep(3); await new Promise(r => setTimeout(r, 400)); if (!mounted) break; // click on text (highlight)
-        setStep(4); await new Promise(r => setTimeout(r, 1500)); if (!mounted) break; // typing correction
-        setStep(5); await new Promise(r => setTimeout(r, 800)); if (!mounted) break; // cursor moves to second edit
-        setStep(6); await new Promise(r => setTimeout(r, 400)); if (!mounted) break; // click
-        setStep(7); await new Promise(r => setTimeout(r, 1500)); if (!mounted) break; // typing second correction
-        setStep(8); await new Promise(r => setTimeout(r, 4000)); // final view with checkmark
+        setStep(2); await new Promise(r => setTimeout(r, 800)); if (!mounted) break; // cursor moves to S section
+        setStep(3); await new Promise(r => setTimeout(r, 400)); if (!mounted) break; // click on S section (highlight)
+        setStep(4); await new Promise(r => setTimeout(r, 600)); if (!mounted) break; // panel slides in from right, report shrinks
+        setStep(5); await new Promise(r => setTimeout(r, 3500)); if (!mounted) break; // typing letters in comment panel
+        setStep(6); await new Promise(r => setTimeout(r, 800)); if (!mounted) break; // click "Toepassen"
+        setStep(7); await new Promise(r => setTimeout(r, 1500)); if (!mounted) break; // text updated, panel closes
+        setStep(8); await new Promise(r => setTimeout(r, 3000)); // final view
       }
     };
     run();
     return () => { mounted = false; };
   }, []);
 
-  const isEditing1 = step >= 3 && step <= 4;
-  const edited1 = step >= 4;
-  const isEditing2 = step >= 6 && step <= 7;
-  const edited2 = step >= 7;
+  const isSelected = step >= 3 && step <= 6;
+  const panelOpen = step >= 4 && step <= 6;
+  const edited = step >= 7;
   const allDone = step >= 8;
 
   const getCursorStyle = useCallback((): React.CSSProperties => {
     switch (step) {
-      case 0: return { transform: 'translate(200px, 350px) scale(1)', opacity: 0 };
-      case 1: return { transform: 'translate(200px, 350px) scale(1)', opacity: 0 };
-      case 2: return { transform: 'translate(250px, 148px) scale(1)', opacity: 1 };
-      case 3: return { transform: 'translate(250px, 148px) scale(0.85)', opacity: 1 };
-      case 4: return { transform: 'translate(300px, 148px) scale(1)', opacity: 1 };
-      case 5: return { transform: 'translate(180px, 290px) scale(1)', opacity: 1 };
-      case 6: return { transform: 'translate(180px, 290px) scale(0.85)', opacity: 1 };
-      case 7: return { transform: 'translate(230px, 290px) scale(1)', opacity: 1 };
+      case 0: return { transform: 'translate(150px, 350px) scale(1)', opacity: 0 };
+      case 1: return { transform: 'translate(150px, 350px) scale(1)', opacity: 0 };
+      case 2: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(1)`, opacity: 1 };
+      case 3: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(0.85)`, opacity: 1 };
+      case 4: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(1)`, opacity: 0 };
+      case 5: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(1)`, opacity: 0 };
+      case 6: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(1)`, opacity: 0 };
+      case 7: return { transform: 'translate(300px, 400px) scale(1)', opacity: 0 };
       case 8: return { transform: 'translate(300px, 400px) scale(1)', opacity: 0 };
       default: return { opacity: 0 };
     }
-  }, [step]);
+  }, [step, sectionPos]);
 
   const sections = [
     {
@@ -425,25 +476,22 @@ const EditSequence = () => {
     },
     {
       label: 'O', title: 'Objectief',
-      original: 'Drukpijn L4-L5 paravertebraal rechts. Lasègue rechts positief bij 60°.',
-      edited: 'Drukpijn L4-L5 paravertebraal rechts. Lasègue rechts positief bij 60°.',
+      text: 'Drukpijn L4-L5 paravertebraal rechts. Lasègue positief bij 60°.',
     },
     {
       label: 'E', title: 'Evaluatie',
-      original: 'Waarschijnlijk lumbale radiculopathie rechts.',
-      edited: 'Waarschijnlijk lumbale radiculopathie rechts.',
+      text: 'Waarschijnlijk lumbale radiculopathie rechts.',
     },
     {
       label: 'P', title: 'Plan',
-      original: 'Pijnstilling (paracetamol + naproxen). Controle over 2 weken.',
-      edited: 'Pijnstilling (paracetamol + naproxen). Controle over 1 week, eerder bij verergering.',
+      text: 'Pijnstilling (paracetamol + naproxen). Controle over 2 weken.',
     },
   ];
 
   return (
-    <div className="relative flex flex-col h-full w-full bg-white">
+    <div ref={containerRef} className="relative flex flex-col h-full w-full bg-white overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/80">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50/80">
         <div className="flex items-center gap-3">
           <Pencil className="h-5 w-5 text-[#772d07]" />
           <span className="text-sm font-semibold text-slate-700">Verslag aanpassen</span>
@@ -456,35 +504,264 @@ const EditSequence = () => {
         )}
       </div>
 
-      {/* Report content */}
-      <div className="flex-1 flex flex-col p-5 gap-4 overflow-y-auto">
-        {step >= 1 && sections.map((s, i) => (
-          <div key={i} className="animate-[slideDown_0.4s_ease-out_forwards]" style={{ animationDelay: `${i * 0.15}s`, animationFillMode: 'backwards' }}>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#772d07] text-[10px] font-bold text-white">{s.label}</span>
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{s.title}</span>
-              {/* Edit indicator */}
-              {((i === 0 && edited1) || (i === 3 && edited2)) && (
-                <span className="ml-auto text-[10px] font-medium text-emerald-500 animate-[fadeIn_0.3s_ease-out_forwards]">aangepast</span>
-              )}
+      {/* Main area: report left + comment panel right */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left: Report content */}
+        <div className={`flex-1 flex flex-col p-4 gap-2.5 overflow-y-auto transition-all duration-500 ${
+          panelOpen ? 'pr-2' : 'pr-4'
+        }`}>
+          {step >= 1 && sections.map((s, i) => (
+            <div key={i} className="animate-[slideDown_0.4s_ease-out_forwards]" style={{ animationDelay: `${i * 0.15}s`, animationFillMode: 'backwards' }}>
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#772d07] text-[9px] font-bold text-white">{s.label}</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{s.title}</span>
+                {i === 0 && edited && (
+                  <span className="ml-auto text-[9px] font-medium text-emerald-500 animate-[fadeIn_0.3s_ease-out_forwards]">aangepast</span>
+                )}
+              </div>
+              <div
+                ref={i === 0 ? sectionRef : undefined}
+                className={`relative rounded-lg px-2.5 py-1.5 ml-6 transition-all duration-300 ${
+                  i === 0 && isSelected && !edited
+                    ? 'bg-amber-50 ring-2 ring-amber-300'
+                    : i === 0 && edited
+                      ? 'bg-emerald-50/50'
+                      : 'bg-transparent'
+                }`}
+              >
+                <p className="text-[12px] text-slate-700 leading-relaxed">
+                  {i === 0 && edited ? s.edited : (i === 0 ? s.original : s.text)}
+                </p>
+              </div>
             </div>
-            <div className={`relative rounded-lg px-3 py-2 ml-8 transition-all duration-300 ${
-              (i === 0 && isEditing1) || (i === 3 && isEditing2)
-                ? 'bg-amber-50 ring-2 ring-amber-300'
-                : (i === 0 && edited1) || (i === 3 && edited2)
-                  ? 'bg-emerald-50/50'
-                  : 'bg-transparent'
-            }`}>
-              <p className="text-[13px] text-slate-700 leading-relaxed">
-                {(i === 0 && edited1) ? s.edited : (i === 3 && edited2) ? s.edited : s.original}
+          ))}
+        </div>
+
+        {/* Right: Comment panel that slides in */}
+        <div className={`border-l border-slate-200 bg-slate-50 flex flex-col transition-all duration-500 ease-out overflow-hidden ${
+          panelOpen ? 'w-[180px] opacity-100' : 'w-0 opacity-0'
+        }`}>
+          <div className="p-3 flex flex-col h-full min-w-[180px]">
+            {/* Panel header */}
+            <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-slate-200">
+              <Pencil className="h-3 w-3 text-[#772d07]" />
+              <span className="text-[10px] font-bold text-slate-600">Opmerking</span>
+            </div>
+
+            {/* Section indicator */}
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="flex h-4 w-4 items-center justify-center rounded bg-[#772d07] text-[8px] font-bold text-white">S</span>
+              <span className="text-[9px] font-semibold text-slate-500">Subjectief</span>
+            </div>
+
+            {/* Typing area */}
+            <div className="flex-1 bg-white rounded-lg border border-slate-200 p-2 relative">
+              <p className="text-[11px] text-slate-700 leading-relaxed break-words">
+                {step >= 5 ? commentText.slice(0, typedChars) : ''}
+                {step === 5 && typedChars < commentText.length && (
+                  <span className="inline-block w-0.5 h-3 bg-[#772d07] animate-pulse ml-px -mb-0.5" />
+                )}
               </p>
-              {/* Typing cursor indicator */}
-              {((i === 0 && isEditing1) || (i === 3 && isEditing2)) && (
-                <span className="inline-block w-0.5 h-4 bg-[#772d07] animate-pulse ml-0.5 -mb-0.5" />
+              {step < 5 && (
+                <p className="text-[10px] text-slate-300 italic">Typ een opmerking...</p>
               )}
             </div>
+
+            {/* Apply button */}
+            <button className={`mt-2 w-full py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-300 ${
+              step >= 6
+                ? 'bg-[#772d07] text-white'
+                : 'bg-slate-200 text-slate-400'
+            }`}>
+              Toepassen
+            </button>
           </div>
-        ))}
+        </div>
+      </div>
+
+      {/* Mouse Cursor */}
+      <div 
+        className="absolute z-50 transition-all duration-[600ms] ease-out pointer-events-none"
+        style={{ top: 0, left: 0, transformOrigin: 'top left', ...getCursorStyle() }}
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-xl">
+          <path d="M5.5 3.21V20.8C5.5 21.45 6.27 21.8 6.76 21.36L11.44 17.15C11.66 16.95 11.96 16.84 12.26 16.84H18.5C19.16 16.84 19.5 16.06 19.04 15.6L6.54 3.06C6.08 2.6 5.5 2.92 5.5 3.21Z" fill="white" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+// Animation for Step 4: Save report to dossier
+const SaveSequence = () => {
+  const [step, setStep] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const saveBtnRef = useRef<HTMLDivElement>(null);
+  const [saveBtnPos, setSaveBtnPos] = useState({ x: 250, y: 400 });
+
+  useEffect(() => {
+    const measure = () => {
+      if (containerRef.current && saveBtnRef.current) {
+        const cRect = containerRef.current.getBoundingClientRect();
+        const bRect = saveBtnRef.current.getBoundingClientRect();
+        setSaveBtnPos({
+          x: bRect.left - cRect.left + bRect.width / 2,
+          y: bRect.top - cRect.top + bRect.height / 2,
+        });
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  // Re-measure after report renders
+  useEffect(() => {
+    if (step === 1) {
+      const timer = setTimeout(() => {
+        if (containerRef.current && saveBtnRef.current) {
+          const cRect = containerRef.current.getBoundingClientRect();
+          const bRect = saveBtnRef.current.getBoundingClientRect();
+          setSaveBtnPos({
+            x: bRect.left - cRect.left + bRect.width / 2,
+            y: bRect.top - cRect.top + bRect.height / 2,
+          });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
+
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      while (mounted) {
+        setStep(0); await new Promise(r => setTimeout(r, 500)); if (!mounted) break;
+        setStep(1); await new Promise(r => setTimeout(r, 1500)); if (!mounted) break; // show report
+        setStep(2); await new Promise(r => setTimeout(r, 1000)); if (!mounted) break; // cursor moves to save button
+        setStep(3); await new Promise(r => setTimeout(r, 400)); if (!mounted) break; // click save button
+        setStep(4); await new Promise(r => setTimeout(r, 2000)); if (!mounted) break; // saving / uploading
+        setStep(5); await new Promise(r => setTimeout(r, 5000)); // success
+      }
+    };
+    run();
+    return () => { mounted = false; };
+  }, []);
+
+  const isSaving = step === 4;
+  const saved = step >= 5;
+
+  const getCursorStyle = useCallback((): React.CSSProperties => {
+    switch (step) {
+      case 0: return { transform: 'translate(200px, 200px) scale(1)', opacity: 0 };
+      case 1: return { transform: 'translate(200px, 200px) scale(1)', opacity: 0 };
+      case 2: return { transform: `translate(${saveBtnPos.x}px, ${saveBtnPos.y}px) scale(1)`, opacity: 1 };
+      case 3: return { transform: `translate(${saveBtnPos.x}px, ${saveBtnPos.y}px) scale(0.85)`, opacity: 1 };
+      case 4: return { transform: `translate(${saveBtnPos.x + 20}px, ${saveBtnPos.y + 10}px) scale(1)`, opacity: 0 };
+      case 5: return { transform: 'translate(300px, 400px) scale(1)', opacity: 0 };
+      default: return { opacity: 0 };
+    }
+  }, [step, saveBtnPos]);
+
+  const sections = [
+    { label: 'S', title: 'Subjectief', text: 'Patiënte (46 jr) met acute lage rugpijn sinds gisteravond, na het tillen van een zware doos.' },
+    { label: 'O', title: 'Objectief', text: 'Drukpijn L4-L5 paravertebraal rechts. Lasègue positief bij 60°.' },
+    { label: 'E', title: 'Evaluatie', text: 'Waarschijnlijk lumbale radiculopathie rechts.' },
+    { label: 'P', title: 'Plan', text: 'Pijnstilling (paracetamol + naproxen). Controle over 2 weken.' },
+  ];
+
+  return (
+    <div ref={containerRef} className="relative flex flex-col h-full w-full bg-white overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50/80">
+        <div className="flex items-center gap-3">
+          <FolderOpen className="h-5 w-5 text-[#772d07]" />
+          <span className="text-sm font-semibold text-slate-700">Opslaan in dossier</span>
+        </div>
+        {saved && (
+          <div className="flex items-center gap-1.5 text-emerald-600 animate-[fadeIn_0.3s_ease-out_forwards]">
+            <Check className="h-4 w-4" />
+            <span className="text-xs font-semibold">Opgeslagen</span>
+          </div>
+        )}
+      </div>
+
+      {/* Report preview */}
+      <div className="flex-1 flex flex-col p-4 gap-2 overflow-y-auto">
+        {step >= 1 && (
+          <>
+            {/* Patient header card */}
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 mb-1 animate-[fadeIn_0.3s_ease-out_forwards]">
+              <div className="h-8 w-8 rounded-full bg-[#772d07]/10 flex items-center justify-center">
+                <span className="text-[10px] font-bold text-[#772d07]">MJ</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-[11px] font-semibold text-slate-700">Mw. Jansen — SOEP-verslag</p>
+                <p className="text-[9px] text-slate-400">Consult 10 maart 2026 · Huisarts</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <Shield className="h-3 w-3 text-emerald-500" />
+                <span className="text-[8px] font-semibold text-emerald-600">AVG</span>
+              </div>
+            </div>
+
+            {/* SOEP sections - compact */}
+            {sections.map((s, i) => (
+              <div key={i} className="animate-[slideDown_0.4s_ease-out_forwards]" style={{ animationDelay: `${i * 0.1}s`, animationFillMode: 'backwards' }}>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#772d07] text-[9px] font-bold text-white">{s.label}</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{s.title}</span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed ml-6">{s.text}</p>
+              </div>
+            ))}
+
+            {/* Save button */}
+            <div
+              ref={saveBtnRef}
+              className={`mt-2 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-500 cursor-pointer ${
+                isSaving
+                  ? 'bg-[#772d07]/80 text-white'
+                  : saved
+                    ? 'bg-emerald-500 text-white'
+                    : step >= 3
+                      ? 'bg-[#772d07] text-white scale-[0.97]'
+                      : 'bg-[#772d07] text-white'
+              }`}
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-[12px] font-semibold">Exporteren...</span>
+                </>
+              ) : saved ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  <span className="text-[12px] font-semibold">Geëxporteerd</span>
+                </>
+              ) : (
+                <>
+                  <FolderOpen className="h-4 w-4" />
+                  <span className="text-[12px] font-semibold">Exporteren</span>
+                </>
+              )}
+            </div>
+
+            {/* Success details */}
+            {saved && (
+              <div className="flex flex-col gap-1.5 mt-1 animate-[fadeIn_0.4s_ease-out_forwards]">
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                  <Check className="h-3 w-3 text-emerald-500" />
+                  <span className="text-[10px] text-emerald-700">Verslag toegevoegd aan dossier</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                  <Shield className="h-3 w-3 text-emerald-500" />
+                  <span className="text-[10px] text-emerald-700">Versleuteld opgeslagen — NEN 7510</span>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Mouse Cursor */}
@@ -545,7 +822,6 @@ const steps = [
 
 export default function HowItWorksAnimated() {
   const [activeStep, setActiveStep] = useState(0);
-  const ActiveIcon = steps[activeStep].icon;
 
   return (
     <section id="hoe-werkt-het" className="bg-white py-24 lg:py-32">
@@ -603,64 +879,12 @@ export default function HowItWorksAnimated() {
 
           {/* Right: Full-height detail panel */}
           <div className="flex">
-            {activeStep <= 2 ? (
-              <div key={activeStep} className="animate-fade-in-up w-full overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-lg relative" style={{ minHeight: '560px' }}>
-                {activeStep === 0 && <RecordingSequence />}
-                {activeStep === 1 && <TemplateSequence />}
-                {activeStep === 2 && <EditSequence />}
-              </div>
-            ) : (
-              <div
-                key={activeStep}
-                className="animate-fade-in-up flex w-full flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-lg"
-              >
-                {/* Image on top */}
-                <div className="relative h-[280px] w-full overflow-hidden">
-                  <Image
-                    src={steps[activeStep].image}
-                    alt={steps[activeStep].title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                {/* Content below image */}
-                <div className="flex flex-1 flex-col p-8">
-                  <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#772d07] text-white">
-                    <ActiveIcon className="h-7 w-7" />
-                  </div>
-
-                  <h3 className="text-2xl font-bold text-slate-900">
-                    {steps[activeStep].title}
-                  </h3>
-
-                  <p className="mt-4 flex-1 text-base leading-relaxed text-slate-600">
-                    {steps[activeStep].detail}
-                  </p>
-
-                  {/* Step counter at bottom */}
-                  <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-6">
-                    <p className="text-sm font-medium text-slate-400">
-                      Stap {activeStep + 1} van {steps.length}
-                    </p>
-                    {/* Progress dots */}
-                    <div className="flex gap-2">
-                      {steps.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setActiveStep(index)}
-                          className={`h-2 rounded-full transition-all duration-300 ${
-                            activeStep === index
-                              ? "w-8 bg-[#772d07]"
-                              : "w-2 bg-slate-200 hover:bg-slate-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            <div key={activeStep} className="animate-fade-in-up w-full overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-lg relative" style={{ minHeight: '560px' }}>
+              {activeStep === 0 && <RecordingSequence />}
+              {activeStep === 1 && <TemplateSequence />}
+              {activeStep === 2 && <EditSequence />}
+              {activeStep === 3 && <SaveSequence />}
+            </div>
           </div>
         </div>
       </Container>
