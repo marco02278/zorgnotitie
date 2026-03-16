@@ -70,8 +70,7 @@ export default function Pricing() {
         {/* Billing toggle */}
         <div className="mt-12 flex flex-col items-center gap-4">
           <div className="flex items-center justify-center gap-3">
-            <span className={`text-sm font-medium transition-colors ${!isYearly ? 'text-slate-900' : 'text-slate-500'}`}
-              style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+            <span className={`text-sm font-medium transition-colors ${!isYearly ? 'text-slate-900' : 'text-slate-500'}`}>
               Maandelijks
             </span>
             <button
@@ -84,14 +83,12 @@ export default function Pricing() {
                 style={{ transform: isYearly ? 'translateX(22px)' : 'translateX(2px)' }}
               />
             </button>
-            <span className={`text-sm font-medium transition-colors ${isYearly ? 'text-slate-900' : 'text-slate-500'}`}
-              style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+            <span className={`text-sm font-medium transition-colors ${isYearly ? 'text-slate-900' : 'text-slate-500'}`}>
               Jaarlijks
             </span>
           </div>
           {isYearly && (
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700"
-              style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
               Bespaar 20%
             </span>
           )}
@@ -114,8 +111,7 @@ export default function Pricing() {
                 <div className="flex flex-1 flex-col p-8">
                   {/* Plan name */}
                   <div className="mb-6 text-center">
-                    <h3 className="mb-2 text-2xl font-bold uppercase tracking-wide text-slate-400"
-                      style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                    <h3 className="mb-2 text-2xl font-bold uppercase tracking-wide text-slate-400">
                       {plan.name}
                     </h3>
                   </div>
@@ -124,49 +120,42 @@ export default function Pricing() {
                   <div className="mb-6 text-center">
                     {price ? (
                       <>
-                        <p className="mb-2 text-sm text-slate-500"
-                          style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                        <p className="mb-2 text-sm text-slate-500">
                           {plan.subtitle}
                         </p>
                         <div className="flex items-baseline justify-center gap-1">
-                          <span className="text-5xl font-bold text-slate-900"
-                            style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                          <span className="text-5xl font-bold text-slate-900">
                             €{price}
                           </span>
                           <span className="text-xl text-slate-600">/mo</span>
                         </div>
                         {isYearly && (
-                          <p className="mt-1 text-xs text-slate-500"
-                            style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                          <p className="mt-1 text-xs text-slate-500">
                             betaald jaarlijks
                           </p>
                         )}
                       </>
                     ) : (
-                      <div className="text-4xl font-bold text-slate-900"
-                        style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                      <div className="text-4xl font-bold text-slate-900">
                         {plan.subtitle}
                       </div>
                     )}
                   </div>
 
                   {/* Description */}
-                  <p className="mb-6 text-sm leading-relaxed text-slate-600"
-                    style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                  <p className="mb-6 text-sm leading-relaxed text-slate-600">
                     {plan.description}
                   </p>
 
                   {/* Includes label */}
-                  <p className="mb-4 text-sm font-semibold text-slate-900"
-                    style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                  <p className="mb-4 text-sm font-semibold text-slate-900">
                     {plan.name === 'Pro' ? 'Everything in Essentials, plus:' : plan.name === 'Business' ? 'Everything in Growth, plus:' : 'Includes:'}
                   </p>
 
                   {/* Features */}
                   <ul className="mb-8 flex-1 space-y-3">
                     {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-slate-700"
-                        style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}>
+                      <li key={idx} className="flex items-start gap-2 text-sm text-slate-700">
                         <span className="text-slate-400">•</span>
                         <span>{feature}</span>
                       </li>
@@ -176,10 +165,7 @@ export default function Pricing() {
                   {/* CTA Button */}
                   <button
                     className="w-full rounded-lg py-3 text-sm font-semibold text-white transition-all hover:opacity-90"
-                    style={{
-                      backgroundColor: '#772d07',
-                      fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif'
-                    }}
+                    style={{ backgroundColor: '#772d07' }}
                   >
                     {plan.name === 'Business' ? 'Request a demo' : 'Test it out'}
                   </button>

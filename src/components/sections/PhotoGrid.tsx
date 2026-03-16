@@ -7,25 +7,25 @@ const categories = [
   {
     id: "psychologen",
     title: "Psychologen",
-    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=1200&q=90",
+    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=2400&q=95",
     description: "Ondersteun uw psychologen met efficiënte verslaglegging en meer tijd voor cliëntcontact. Onze AI-gestuurde oplossing automatiseert administratieve taken en zorgt voor gestructureerde dossiervorming conform BIG-register eisen.",
   },
   {
     id: "huisartsen",
     title: "Huisartsen",
-    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=1200&q=90",
+    image: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=2400&q=95",
     description: "Geef huisartsen meer tijd voor patiëntenzorg door gespreksverslagen automatisch te genereren. Voldoet aan NHG-standaarden en integreert naadloos met bestaande HIS-systemen voor een optimale workflow.",
   },
   {
     id: "ziekenhuizen",
     title: "Ziekenhuizen",
-    image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=90",
+    image: "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=2400&q=95",
     description: "Verhoog de efficiëntie in uw ziekenhuis met geautomatiseerde verslaglegging voor alle afdelingen. Van polikliniek tot spoedeisende hulp - onze oplossing schaalt mee met uw organisatie en voldoet aan alle ziekenhuisprotocollen.",
   },
   {
     id: "ggz",
     title: "GGZ Instellingen",
-    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=90",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=2400&q=95",
     description: "Optimaliseer de zorgverlening in GGZ-instellingen met veilige, AVG-proof verslaglegging. Onze oplossing ondersteunt ROM-metingen, behandelplannen en multidisciplinaire rapportages voor een complete dossiervorming.",
   },
 ];
