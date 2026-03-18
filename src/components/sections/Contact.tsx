@@ -27,7 +27,7 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="bg-white py-24 lg:py-32">
+    <section id="contact" className="py-24 lg:py-32">
       <Container>
         <div className="mx-auto max-w-6xl">
           {/* Header */}

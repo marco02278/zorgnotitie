@@ -13,40 +13,56 @@ import AboutUs from "@/components/sections/AboutUs";
 import Pricing from "@/components/sections/Pricing";
 import FAQ from "@/components/sections/FAQ";
 import Contact from "@/components/sections/Contact";
-import CTA from "@/components/sections/CTA";
 
 export default function Home() {
   return (
     <>
       <Navbar />
       <main>
-        <Hero />
-        <div id="about">
-          <VideoStats />
+
+        {/* ── GLOW RECHTS #1: Hero + VideoStats + HowItWorks ── */}
+        <div className="glow-block-right">
+          <Hero />
+          <div id="about">
+            <VideoStats />
+          </div>
+          <HowItWorksAnimated />
         </div>
-        <HowItWorksAnimated />
-        <div id="veiligheid">
-          <Compliance />
+
+        {/* ── GLOW LINKS #1: Compliance + PhotoGrid + ClientLogos ── */}
+        <div className="glow-block-left">
+          <div id="veiligheid">
+            <Compliance />
+          </div>
+          <PhotoGrid />
+          <ClientLogos />
         </div>
-        <PhotoGrid />
-        <ClientLogos />
-        <div id="templates">
-          <Templates />
+
+        {/* ── GLOW RECHTS #2: Templates + API ── */}
+        <div className="glow-block-right">
+          <div id="templates">
+            <Templates />
+          </div>
+          <div id="api">
+            <APIIntegrations />
+          </div>
         </div>
-        <div id="api">
-          <APIIntegrations />
+
+        {/* ── GLOW LINKS #2: Testimonials + AboutUs + Pricing + FAQ + Contact ── */}
+        <div className="glow-block-left">
+          <TestimonialsAnimated />
+          <div id="over-ons">
+            <AboutUs />
+          </div>
+          <div id="pricing">
+            <Pricing />
+          </div>
+          <FAQ />
+          <div id="contact">
+            <Contact />
+          </div>
         </div>
-        <TestimonialsAnimated />
-        <div id="over-ons">
-          <AboutUs />
-        </div>
-        <div id="pricing">
-          <Pricing />
-        </div>
-        <FAQ />
-        <div id="contact">
-          <Contact />
-        </div>
+
       </main>
       <Footer />
     </>

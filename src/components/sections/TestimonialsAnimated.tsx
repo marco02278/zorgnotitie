@@ -104,27 +104,30 @@ export default function TestimonialsAnimated() {
           </h2>
         </div>
 
-        {/* Constrained animated area */}
-        <div className="relative h-[500px] overflow-hidden">
-          {/* Fade top */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-[#faf6f0] to-transparent" />
-          {/* Fade bottom */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-[#faf6f0] to-transparent" />
+        {/* Rounded container */}
+        <div className="relative z-10 overflow-hidden rounded-3xl bg-white p-6 shadow-[0_4px_50px_rgba(119,45,7,0.08)] lg:p-10">
+          {/* Constrained animated area */}
+          <div className="relative h-[500px] overflow-hidden">
+            {/* Fade top */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-white to-transparent" />
+            {/* Fade bottom */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-white to-transparent" />
 
-          {/* Two columns */}
-          <div className="mx-auto flex max-w-3xl justify-center gap-6">
-            {/* Left column - scrolls down */}
-            <div className="animate-scroll-down">
-              {leftColumn.map((testimonial, index) => (
-                <TestimonialCard key={`left-${index}`} testimonial={testimonial} />
-              ))}
-            </div>
+            {/* Two columns */}
+            <div className="mx-auto flex max-w-3xl justify-center gap-6">
+              {/* Left column - scrolls down */}
+              <div className="animate-scroll-down">
+                {leftColumn.map((testimonial, index) => (
+                  <TestimonialCard key={`left-${index}`} testimonial={testimonial} />
+                ))}
+              </div>
 
-            {/* Right column - scrolls up */}
-            <div className="animate-scroll-up">
-              {rightColumn.map((testimonial, index) => (
-                <TestimonialCard key={`right-${index}`} testimonial={testimonial} />
-              ))}
+              {/* Right column - scrolls up */}
+              <div className="animate-scroll-up">
+                {rightColumn.map((testimonial, index) => (
+                  <TestimonialCard key={`right-${index}`} testimonial={testimonial} />
+                ))}
+              </div>
             </div>
           </div>
         </div>

@@ -23,38 +23,38 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="border-t border-cream-200 bg-cream-100">
+    <footer className="bg-gradient-to-b from-[#3d1704] to-[#2a1003]">
       <Container className="py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-700">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15">
                 <span className="text-sm font-bold text-white">ZN</span>
               </div>
-              <span className="text-lg font-semibold text-slate-900">
+              <span className="text-lg font-semibold text-white">
                 ZorgNotitie
               </span>
             </Link>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/50">
               AI-gestuurde verslaglegging voor de Nederlandse zorgsector.
               Veilig, betrouwbaar en AVG-proof.
             </p>
             <div className="mt-6 flex flex-col gap-3">
               <a
                 href="mailto:info@zorgnotitie.nl"
-                className="flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-primary-600"
+                className="flex items-center gap-2 text-sm text-white/50 transition-colors hover:text-white/80"
               >
                 <Mail className="h-4 w-4" />
                 info@zorgnotitie.nl
               </a>
               <a
                 href="tel:+31201234567"
-                className="flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-primary-600"
+                className="flex items-center gap-2 text-sm text-white/50 transition-colors hover:text-white/80"
               >
                 <Phone className="h-4 w-4" />
                 +31 (0)20 123 4567
               </a>
-              <span className="flex items-center gap-2 text-sm text-slate-500">
+              <span className="flex items-center gap-2 text-sm text-white/50">
                 <MapPin className="h-4 w-4" />
                 Amsterdam, Nederland
               </span>
@@ -62,13 +62,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-slate-900">Product</h4>
+            <h4 className="text-sm font-semibold text-white/80">Product</h4>
             <ul className="mt-4 flex flex-col gap-2.5">
               {footerLinks.product.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-slate-500 transition-colors hover:text-primary-600"
+                    className="text-sm text-white/40 transition-colors hover:text-white/70"
                   >
                     {link.label}
                   </Link>
@@ -78,13 +78,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-slate-900">Bedrijf</h4>
+            <h4 className="text-sm font-semibold text-white/80">Bedrijf</h4>
             <ul className="mt-4 flex flex-col gap-2.5">
               {footerLinks.bedrijf.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-slate-500 transition-colors hover:text-primary-600"
+                    className="text-sm text-white/40 transition-colors hover:text-white/70"
                   >
                     {link.label}
                   </Link>
@@ -94,13 +94,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-slate-900">Juridisch</h4>
+            <h4 className="text-sm font-semibold text-white/80">Juridisch</h4>
             <ul className="mt-4 flex flex-col gap-2.5">
               {footerLinks.juridisch.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-slate-500 transition-colors hover:text-primary-600"
+                    className="text-sm text-white/40 transition-colors hover:text-white/70"
                   >
                     {link.label}
                   </Link>
@@ -110,16 +110,16 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-cream-200 pt-8 sm:flex-row">
-          <p className="text-sm text-slate-400">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
+          <p className="text-sm text-white/30">
             &copy; {new Date().getFullYear()} ZorgNotitie B.V. Alle rechten
             voorbehouden.
           </p>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center rounded-full bg-accent-50 px-3 py-1 text-xs font-medium text-accent-700">
+            <span className="inline-flex items-center rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-white/50">
               NEN 7510 gecertificeerd
             </span>
-            <span className="inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
+            <span className="inline-flex items-center rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-white/50">
               AVG-proof
             </span>
           </div>

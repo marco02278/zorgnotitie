@@ -14,7 +14,7 @@ const epdLogos = [
 
 export default function APIIntegrations() {
   return (
-    <section className="relative overflow-hidden bg-slate-50 py-24 lg:py-32">
+    <section className="relative overflow-hidden py-24 lg:py-32">
       {/* Animated EPD Icons Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* First row - moving left */}
@@ -58,7 +58,7 @@ export default function APIIntegrations() {
         </div>
         
         {/* Blur overlay */}
-        <div className="absolute inset-0 bg-slate-50/80" />
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
       </div>
       
       {/* Content overlay */}

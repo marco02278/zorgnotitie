@@ -60,7 +60,7 @@ export default function Pricing() {
   const [isYearly, setIsYearly] = useState(false);
 
   return (
-    <section id="pricing" className="relative bg-white py-24 lg:py-32">
+    <section id="pricing" className="relative py-24 lg:py-32">
       <Container>
         <SectionHeading
           title="Transparante prijzen"
@@ -87,11 +87,6 @@ export default function Pricing() {
               Jaarlijks
             </span>
           </div>
-          {isYearly && (
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-              Bespaar 20%
-            </span>
-          )}
         </div>
 
         {/* Pricing cards */}
@@ -124,6 +119,11 @@ export default function Pricing() {
                           {plan.subtitle}
                         </p>
                         <div className="flex items-baseline justify-center gap-1">
+                          {isYearly && plan.monthlyPrice && plan.monthlyPrice !== plan.yearlyPrice && (
+                            <span className="mr-1 text-2xl font-medium text-slate-400 line-through">
+                              €{plan.monthlyPrice}
+                            </span>
+                          )}
                           <span className="text-5xl font-bold text-slate-900">
                             €{price}
                           </span>

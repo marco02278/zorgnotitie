@@ -14,7 +14,7 @@ const teamMembers = [
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=800&q=80",
   },
   {
-    name: "Sarah de Vries",
+    name: "Florian Fikkert",
     roles: [
       { emoji: "💻", text: "Full-stack developer" },
       { emoji: "🎨", text: "UI/UX enthusiast" },
@@ -25,7 +25,7 @@ const teamMembers = [
 
 export default function AboutUs() {
   return (
-    <section className="bg-slate-50 py-16 lg:py-24">
+    <section className="py-16 lg:py-24">
       <Container>
         {/* Header */}
         <div className="mb-16 text-center">

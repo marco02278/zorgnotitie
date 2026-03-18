@@ -138,9 +138,7 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="relative bg-slate-50 py-24 lg:py-32">
-      {/* Angled top edge */}
-      <div className="absolute inset-x-0 -top-16 h-16 bg-white" style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 40%)" }} />
+    <section id="faq" className="relative py-24 lg:py-32">
 
       <Container>
         <div className="text-center mb-16">

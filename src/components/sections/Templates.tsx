@@ -443,7 +443,7 @@ export default function Templates() {
   }, [handleScroll]);
 
   return (
-    <section className="bg-slate-50 py-24 lg:py-32">
+    <section className="py-24 lg:py-32">
       <Container>
         {/* Header */}
         <div className="mb-12 text-center">
@@ -469,7 +469,7 @@ export default function Templates() {
         </div>
 
         {/* White container around the entire panel */}
-        <div className="mx-auto w-full max-w-6xl overflow-hidden rounded-3xl bg-white p-6 shadow-lg lg:p-8">
+        <div className="relative z-10 mx-auto w-full max-w-6xl overflow-hidden rounded-3xl bg-white p-6 shadow-[0_4px_50px_rgba(119,45,7,0.08)] lg:p-8">
           {/* Two-panel layout: scrollable list + preview */}
           <div
             className="grid items-stretch transition-all duration-500 ease-out"

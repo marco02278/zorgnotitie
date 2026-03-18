@@ -4,7 +4,7 @@ import Button from "@/components/ui/Button";
 
 export default function CTA() {
   return (
-    <section className="bg-cream-100 py-24 lg:py-32">
+    <section className="py-24 lg:py-32">
       <Container>
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
@@ -15,12 +15,9 @@ export default function CTA() {
             besparen met ZorgNotitie. Start vandaag nog met uw gratis proefperiode.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button href="/demo" variant="primary" size="lg">
-              Gratis demo aanvragen
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button href="/contact" variant="outline" size="lg">
+            <Button href="/contact" variant="primary" size="lg">
               Neem contact op
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
           <p className="mt-6 text-sm text-slate-400">

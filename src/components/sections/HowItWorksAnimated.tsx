@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { Mic, Brain, FileText, FolderOpen, Loader2, Check, Pencil, ChevronDown, Upload, Shield } from "lucide-react";
+import { Mic, Brain, FileText, FolderOpen, Loader2, Check, Pencil, ChevronDown, Upload } from "lucide-react";
 
 // The animated overlay component for the first step
 const RecordingSequence = () => {
@@ -378,44 +378,38 @@ const EditSequence = () => {
   const [typedChars, setTypedChars] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const toepassenRef = useRef<HTMLDivElement>(null);
   const [sectionPos, setSectionPos] = useState({ x: 120, y: 130 });
+  const [toepassenPos, setToepassenPos] = useState({ x: 280, y: 380 });
 
   const commentText = 'Oorzaak toevoegen: pijn begon na het tillen van een zware doos';
 
+  const measure = useCallback(() => {
+    if (!containerRef.current) return;
+    const cRect = containerRef.current.getBoundingClientRect();
+    if (sectionRef.current) {
+      const r = sectionRef.current.getBoundingClientRect();
+      setSectionPos({ x: r.left - cRect.left + r.width * 0.4, y: r.top - cRect.top + r.height / 2 });
+    }
+    if (toepassenRef.current) {
+      const r = toepassenRef.current.getBoundingClientRect();
+      setToepassenPos({ x: r.left - cRect.left + r.width * 0.5, y: r.top - cRect.top + r.height * 0.5 });
+    }
+  }, []);
+
   useEffect(() => {
-    const measure = () => {
-      if (containerRef.current && sectionRef.current) {
-        const cRect = containerRef.current.getBoundingClientRect();
-        const sRect = sectionRef.current.getBoundingClientRect();
-        setSectionPos({
-          x: sRect.left - cRect.left + sRect.width * 0.4,
-          y: sRect.top - cRect.top + sRect.height / 2,
-        });
-      }
-    };
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
-  }, []);
+  }, [measure]);
 
-  // Re-measure after report renders
   useEffect(() => {
-    if (step === 1) {
-      const timer = setTimeout(() => {
-        if (containerRef.current && sectionRef.current) {
-          const cRect = containerRef.current.getBoundingClientRect();
-          const sRect = sectionRef.current.getBoundingClientRect();
-          setSectionPos({
-            x: sRect.left - cRect.left + sRect.width * 0.4,
-            y: sRect.top - cRect.top + sRect.height / 2,
-          });
-        }
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [step]);
+    const t1 = setTimeout(measure, 80);
+    const t2 = setTimeout(measure, 250);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [step, measure]);
 
-  // Typing animation: type letters one by one
+  // Typing animation
   useEffect(() => {
     if (step === 5) {
       setTypedChars(0);
@@ -435,56 +429,59 @@ const EditSequence = () => {
       while (mounted) {
         setStep(0); setTypedChars(0); await new Promise(r => setTimeout(r, 500)); if (!mounted) break;
         setStep(1); await new Promise(r => setTimeout(r, 1200)); if (!mounted) break; // show report
-        setStep(2); await new Promise(r => setTimeout(r, 800)); if (!mounted) break; // cursor moves to S section
-        setStep(3); await new Promise(r => setTimeout(r, 400)); if (!mounted) break; // click on S section (highlight)
-        setStep(4); await new Promise(r => setTimeout(r, 600)); if (!mounted) break; // panel slides in from right, report shrinks
-        setStep(5); await new Promise(r => setTimeout(r, 3500)); if (!mounted) break; // typing letters in comment panel
-        setStep(6); await new Promise(r => setTimeout(r, 800)); if (!mounted) break; // click "Toepassen"
-        setStep(7); await new Promise(r => setTimeout(r, 1500)); if (!mounted) break; // text updated, panel closes
-        setStep(8); await new Promise(r => setTimeout(r, 3000)); // final view
+        setStep(2); await new Promise(r => setTimeout(r, 900)); if (!mounted) break; // cursor moves to S section
+        setStep(3); await new Promise(r => setTimeout(r, 400)); if (!mounted) break; // click S (highlight)
+        setStep(4); await new Promise(r => setTimeout(r, 600)); if (!mounted) break; // panel slides in
+        setStep(5); await new Promise(r => setTimeout(r, 3500)); if (!mounted) break; // typing comment
+        setStep(6); await new Promise(r => setTimeout(r, 900)); if (!mounted) break; // cursor moves to Toepassen
+        setStep(7); await new Promise(r => setTimeout(r, 400)); if (!mounted) break; // cursor clicks Toepassen
+        setStep(8); await new Promise(r => setTimeout(r, 1600)); if (!mounted) break; // LLM thinking
+        setStep(9); await new Promise(r => setTimeout(r, 800)); if (!mounted) break; // text updated, panel closes
+        setStep(10); await new Promise(r => setTimeout(r, 3000)); // final view
       }
     };
     run();
     return () => { mounted = false; };
   }, []);
 
-  const isSelected = step >= 3 && step <= 6;
-  const panelOpen = step >= 4 && step <= 6;
-  const edited = step >= 7;
-  const allDone = step >= 8;
+  const isSelected = step >= 3 && step <= 7;
+  const panelOpen = step >= 4 && step <= 8;
+  const toepassenActive = step >= 7;
+  const isThinking = step === 8;
+  const edited = step >= 9;
+  const allDone = step >= 10;
 
   const getCursorStyle = useCallback((): React.CSSProperties => {
     switch (step) {
-      case 0: return { transform: 'translate(150px, 350px) scale(1)', opacity: 0 };
-      case 1: return { transform: 'translate(150px, 350px) scale(1)', opacity: 0 };
-      case 2: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(1)`, opacity: 1 };
-      case 3: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(0.85)`, opacity: 1 };
-      case 4: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(1)`, opacity: 0 };
-      case 5: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(1)`, opacity: 0 };
-      case 6: return { transform: `translate(${sectionPos.x}px, ${sectionPos.y}px) scale(1)`, opacity: 0 };
-      case 7: return { transform: 'translate(300px, 400px) scale(1)', opacity: 0 };
-      case 8: return { transform: 'translate(300px, 400px) scale(1)', opacity: 0 };
-      default: return { opacity: 0 };
+      case 0: return { transform: `translate(${sectionPos.x}px,${sectionPos.y}px)`, opacity: 0 };
+      case 1: return { transform: `translate(${sectionPos.x}px,${sectionPos.y}px)`, opacity: 0 };
+      case 2: return { transform: `translate(${sectionPos.x}px,${sectionPos.y}px)`, opacity: 1 };
+      case 3: return { transform: `translate(${sectionPos.x}px,${sectionPos.y}px) scale(0.85)`, opacity: 1 };
+      case 4: return { transform: `translate(${sectionPos.x}px,${sectionPos.y}px)`, opacity: 0 };
+      case 5: return { transform: `translate(${sectionPos.x}px,${sectionPos.y}px)`, opacity: 0 };
+      case 6: return { transform: `translate(${toepassenPos.x}px,${toepassenPos.y}px)`, opacity: 1 };
+      case 7: return { transform: `translate(${toepassenPos.x}px,${toepassenPos.y}px) scale(0.85)`, opacity: 1 };
+      default: return { transform: `translate(${toepassenPos.x}px,${toepassenPos.y}px)`, opacity: 0 };
     }
-  }, [step, sectionPos]);
+  }, [step, sectionPos, toepassenPos]);
 
   const sections = [
     {
       label: 'S', title: 'Subjectief',
-      original: 'Patiënte (46 jr) met acute lage rugpijn sinds gisteravond.',
-      edited: 'Patiënte (46 jr) met acute lage rugpijn sinds gisteravond, na het tillen van een zware doos.',
+      original: 'Patiënte (46 jr) presenteert zich met acute lage rugpijn sinds gisteravond, plotseling ingeschoten. Af en toe tintelingen in het rechterbeen bij langdurig zitten.',
+      edited: 'Patiënte (46 jr) presenteert zich met acute lage rugpijn sinds gisteravond, na het tillen van een zware doos. Af en toe tintelingen in het rechterbeen bij langdurig zitten.',
     },
     {
       label: 'O', title: 'Objectief',
-      text: 'Drukpijn L4-L5 paravertebraal rechts. Lasègue positief bij 60°.',
+      text: 'Drukpijn L4-L5 paravertebraal rechts. Lasègue rechts positief bij 60°. Geen neurologische uitval. Reflexen symmetrisch.',
     },
     {
       label: 'E', title: 'Evaluatie',
-      text: 'Waarschijnlijk lumbale radiculopathie rechts.',
+      text: 'Waarschijnlijk lumbale radiculopathie rechts, DD hernia nuclei pulposi L4-L5. Alarmsymptomen afwezig.',
     },
     {
       label: 'P', title: 'Plan',
-      text: 'Pijnstilling (paracetamol + naproxen). Controle over 2 weken.',
+      text: 'Pijnstilling (paracetamol + naproxen). Fysiotherapie verwijzing. Controle over 2 weken, eerder bij verergering.',
     },
   ];
 
@@ -522,16 +519,29 @@ const EditSequence = () => {
               <div
                 ref={i === 0 ? sectionRef : undefined}
                 className={`relative rounded-lg px-2.5 py-1.5 ml-6 transition-all duration-300 ${
-                  i === 0 && isSelected && !edited
+                  i === 0 && isThinking
                     ? 'bg-amber-50 ring-2 ring-amber-300'
-                    : i === 0 && edited
-                      ? 'bg-emerald-50/50'
-                      : 'bg-transparent'
+                    : i === 0 && isSelected && !edited
+                      ? 'bg-amber-50 ring-2 ring-amber-300'
+                      : i === 0 && edited
+                        ? 'bg-emerald-50/50'
+                        : 'bg-transparent'
                 }`}
               >
-                <p className="text-[12px] text-slate-700 leading-relaxed">
-                  {i === 0 && edited ? s.edited : (i === 0 ? s.original : s.text)}
-                </p>
+                {i === 0 && isThinking ? (
+                  <div className="flex items-center gap-2 animate-[fadeIn_0.2s_ease-out_forwards]">
+                    <Loader2 className="h-3 w-3 text-[#772d07] animate-spin flex-shrink-0" />
+                    <p className="text-[11px] text-slate-400 italic animate-pulse">AI verwerkt opmerking...</p>
+                  </div>
+                ) : i === 0 && edited ? (
+                  <p className="text-[12px] text-slate-700 leading-relaxed animate-[fadeIn_0.4s_ease-out_forwards]">
+                    {s.edited}
+                  </p>
+                ) : (
+                  <p className="text-[12px] text-slate-700 leading-relaxed">
+                    {i === 0 ? s.original : s.text}
+                  </p>
+                )}
               </div>
             </div>
           ))}
@@ -568,13 +578,17 @@ const EditSequence = () => {
             </div>
 
             {/* Apply button */}
-            <button className={`mt-2 w-full py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-300 ${
-              step >= 6
-                ? 'bg-[#772d07] text-white'
-                : 'bg-slate-200 text-slate-400'
-            }`}>
-              Toepassen
-            </button>
+            <div ref={toepassenRef} className="mt-2">
+              <button className={`w-full py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-300 ${
+                toepassenActive
+                  ? 'bg-[#772d07] text-white scale-95'
+                  : step >= 6
+                    ? 'bg-[#772d07] text-white'
+                    : 'bg-slate-200 text-slate-400'
+              }`}>
+                Toepassen
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -664,10 +678,10 @@ const SaveSequence = () => {
   }, [step, saveBtnPos]);
 
   const sections = [
-    { label: 'S', title: 'Subjectief', text: 'Patiënte (46 jr) met acute lage rugpijn sinds gisteravond, na het tillen van een zware doos.' },
-    { label: 'O', title: 'Objectief', text: 'Drukpijn L4-L5 paravertebraal rechts. Lasègue positief bij 60°.' },
-    { label: 'E', title: 'Evaluatie', text: 'Waarschijnlijk lumbale radiculopathie rechts.' },
-    { label: 'P', title: 'Plan', text: 'Pijnstilling (paracetamol + naproxen). Controle over 2 weken.' },
+    { label: 'S', title: 'Subjectief', text: 'Patiënte (46 jr) presenteert zich met acute lage rugpijn sinds gisteravond, na het tillen van een zware doos. Af en toe tintelingen in het rechterbeen bij langdurig zitten.' },
+    { label: 'O', title: 'Objectief', text: 'Drukpijn L4-L5 paravertebraal rechts. Lasègue rechts positief bij 60°. Geen neurologische uitval. Reflexen symmetrisch.' },
+    { label: 'E', title: 'Evaluatie', text: 'Waarschijnlijk lumbale radiculopathie rechts, DD hernia nuclei pulposi L4-L5. Alarmsymptomen afwezig.' },
+    { label: 'P', title: 'Plan', text: 'Pijnstilling (paracetamol + naproxen). Fysiotherapie verwijzing. Controle over 2 weken, eerder bij verergering.' },
   ];
 
   return (
@@ -698,10 +712,6 @@ const SaveSequence = () => {
               <div className="flex-1">
                 <p className="text-[11px] font-semibold text-slate-700">Mw. Jansen — SOEP-verslag</p>
                 <p className="text-[9px] text-slate-400">Consult 10 maart 2026 · Huisarts</p>
-              </div>
-              <div className="flex items-center gap-1">
-                <Shield className="h-3 w-3 text-emerald-500" />
-                <span className="text-[8px] font-semibold text-emerald-600">AVG</span>
               </div>
             </div>
 
@@ -747,19 +757,6 @@ const SaveSequence = () => {
               )}
             </div>
 
-            {/* Success details */}
-            {saved && (
-              <div className="flex flex-col gap-1.5 mt-1 animate-[fadeIn_0.4s_ease-out_forwards]">
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 border border-emerald-100">
-                  <Check className="h-3 w-3 text-emerald-500" />
-                  <span className="text-[10px] text-emerald-700">Verslag toegevoegd aan dossier</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 border border-emerald-100">
-                  <Shield className="h-3 w-3 text-emerald-500" />
-                  <span className="text-[10px] text-emerald-700">Versleuteld opgeslagen — NEN 7510</span>
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
@@ -824,7 +821,7 @@ export default function HowItWorksAnimated() {
   const [activeStep, setActiveStep] = useState(0);
 
   return (
-    <section id="hoe-werkt-het" className="bg-white py-24 lg:py-32">
+    <section id="hoe-werkt-het" className="py-24 lg:py-32">
       <Container>
         <SectionHeading
           title="Hoe werkt het?"

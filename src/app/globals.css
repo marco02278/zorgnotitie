@@ -47,9 +47,53 @@
 }
 
 body {
-  background: #faf6f0;
+  background: #fefcf8;
   color: var(--color-slate-800);
   font-family: var(--font-comfortaa), system-ui, sans-serif;
+}
+
+.bg-glow {
+  display: none;
+}
+
+/*
+ * ── GLOW BLOKKEN ──────────────────────────────────────────────────────
+ * Grote glow-blokken die meerdere secties overspannen.
+ * Kleur: rgba(249, 188, 102, ...) — geel-oranje
+ * Sterkte: eerste getal = core opacity, tweede = fade opacity
+ * ─────────────────────────────────────────────────────────────────────
+ */
+.glow-block-left,
+.glow-block-right {
+  position: relative;
+}
+
+/* Glow links: groot, zacht, smeert uit over de hele hoogte van het blok */
+.glow-block-left::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -5%;
+  width: 55%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(ellipse at left center, rgba(249, 188, 102, 0.14) 0%, rgba(249, 188, 102, 0.04) 50%, transparent 75%);
+  filter: blur(60px);
+}
+
+/* Glow rechts: groot, zacht, smeert uit over de hele hoogte van het blok */
+.glow-block-right::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -5%;
+  width: 55%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(ellipse at right center, rgba(249, 188, 102, 0.14) 0%, rgba(249, 188, 102, 0.04) 50%, transparent 75%);
+  filter: blur(60px);
 }
 
 html {

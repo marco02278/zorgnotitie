@@ -46,7 +46,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="nl">
-      <body className={`${inter.variable} ${cabin.variable} ${comfortaa.variable} antialiased`}>{children}</body>
+      <body className={`${inter.variable} ${cabin.variable} ${comfortaa.variable} relative antialiased`}>
+        <div className="bg-glow" aria-hidden="true">
+          <div className="bg-glow-blob" />
+          <div className="bg-glow-blob" />
+          <div className="bg-glow-blob" />
+          <div className="bg-glow-blob" />
+          <div className="bg-glow-blob" />
+          <div className="bg-glow-blob" />
+        </div>
+        <div className="relative z-10">{children}</div>
+      </body>
     </html>
   );
 }

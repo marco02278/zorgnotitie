@@ -1,112 +1,109 @@
 "use client";
 
-import { Shield, FileCheck, MapPin, Check } from "lucide-react";
+import { Shield, Lock, Server } from "lucide-react";
+
 import Image from "next/image";
 import Container from "@/components/ui/Container";
 
-const complianceFeatures = [
-  "AVG-compliant gegevensverwerking",
-  "NEN 7510 gecertificeerd",
-  "Data opslag binnen Europa",
+const complianceItems = [
+  {
+    icon: Shield,
+    title: "AVG/GDPR-compliant",
+    description: "Volledig conforme gegevensverwerking volgens de strengste Europese privacywetgeving.",
+  },
+  {
+    icon: Lock,
+    title: "ISO 27001 compliant",
+    description: "Informatiebeveiliging volgens de internationale standaard voor veilig omgaan met gevoelige data.",
+  },
+  {
+    icon: Server,
+    title: "NEN 7510 compliant",
+    description: "Voldoet aan dé Nederlandse norm voor informatiebeveiliging in de zorgsector.",
+  },
 ];
 
 export default function Compliance() {
   return (
-    <section className="py-16 lg:py-24">
+    <section className="py-20 lg:py-32">
       <Container>
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-          {/* Left content */}
-          <div className="flex flex-col justify-center">
-            {/* Badge */}
-            <div className="mb-6 inline-flex items-center gap-2 self-start">
-              <Shield className="h-5 w-5 text-[#772d07]" />
-              <p
-                className="text-sm font-semibold uppercase tracking-wider text-[#772d07]"
-                style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
-              >
-                Veiligheid & Compliance
-              </p>
-            </div>
-
-            {/* Title */}
+        {/* Row 1: Compliance items (left) + Image (right) */}
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          {/* Left: badge, title, items */}
+          <div>
             <h2
-              className="mb-6 text-4xl font-bold text-slate-900 sm:text-5xl"
+              className="mb-10 text-3xl font-bold text-slate-900 sm:text-4xl lg:text-5xl"
               style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
             >
               Veilige{" "}
-              <span className="text-[#772d07]">
-                Zorgdata
-              </span>{" "}
+              <span className="text-[#772d07]">Zorgdata</span>{" "}
               Verwerking
             </h2>
 
-            {/* Features list */}
-            <div className="mb-8 space-y-4">
-              {complianceFeatures.map((feature, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <div className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#772d07]">
-                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
+            <div className="space-y-6">
+              {complianceItems.map((item) => (
+                <div key={item.title} className="flex gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#772d07]/8">
+                    <item.icon className="h-5 w-5 text-[#772d07]" />
                   </div>
-                  <p
-                    className="text-lg text-slate-700"
-                    style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
-                  >
-                    {feature}
-                  </p>
+                  <div>
+                    <h3
+                      className="text-base font-semibold text-slate-900"
+                      style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
+                    >
+                      {item.title}
+                    </h3>
+                    <p
+                      className="mt-1 text-sm leading-relaxed text-slate-500"
+                      style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
+                    >
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
-
-            {/* CTA Button */}
-            <div>
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center rounded-full bg-[#772d07] px-8 py-4 text-base font-semibold text-white transition-all duration-300 hover:bg-[#5a2205] hover:shadow-lg"
-                style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
-              >
-                Meer informatie
-              </a>
-            </div>
           </div>
 
-          {/* Right image */}
-          <div className="flex items-center justify-center">
-            <div className="relative h-[500px] w-full overflow-hidden rounded-3xl shadow-xl">
-              <Image
-                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80"
-                alt="Veilige zorgdata verwerking"
-                fill
-                className="object-cover"
-                priority
-              />
-              
-              {/* Floating card overlay */}
-              <div className="absolute bottom-8 left-8 right-8 rounded-2xl bg-white p-6 shadow-2xl">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#772d07]/10">
-                    <FileCheck className="h-5 w-5 text-[#772d07]" />
-                  </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#772d07]/10">
-                    <Shield className="h-5 w-5 text-[#772d07]" />
-                  </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#772d07]/10">
-                    <MapPin className="h-5 w-5 text-[#772d07]" />
-                  </div>
-                </div>
-                <p
-                  className="text-sm font-semibold text-slate-900"
-                  style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
-                >
-                  100% veilig en compliant
-                </p>
-                <p
-                  className="mt-1 text-xs text-slate-600"
-                  style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
-                >
-                  Gecertificeerd volgens de hoogste normen
-                </p>
-              </div>
-            </div>
+          {/* Right: Image */}
+          <div className="relative h-[420px] w-full overflow-hidden rounded-3xl shadow-2xl">
+            <Image
+              src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80"
+              alt="Veilige zorgdata verwerking"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        </div>
+
+        {/* Row 2: Image (left) + Text (right) */}
+        <div className="mt-32 lg:mt-40 grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          {/* Left: Image */}
+          <div className="relative h-[360px] w-full overflow-hidden rounded-3xl shadow-2xl">
+            <Image
+              src="https://images.unsplash.com/photo-1504439468489-c8920d796a29?auto=format&fit=crop&w=800&q=80"
+              alt="Data privacy en beveiliging"
+              fill
+              className="object-cover"
+            />
+          </div>
+
+          {/* Right: Text */}
+          <div>
+            <h3
+              className="mb-4 text-2xl font-bold text-slate-900 sm:text-3xl"
+              style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
+            >
+              Uw data, volledig{" "}
+              <span className="text-[#772d07]">beschermd</span>
+            </h3>
+            <p
+              className="text-lg leading-relaxed text-slate-600"
+              style={{ fontFamily: 'Satoshi, "Satoshi Placeholder", sans-serif' }}
+            >
+              Uw gegevens worden uitsluitend verwerkt op servers binnen de Europese Unie en verlaten nooit de EU-grenzen. Wij maken gebruik van beveiligde datacenters die voldoen aan de strengste internationale normen. Audio-opnames worden direct na het genereren van het transcript permanent verwijderd, waardoor er geen enkele kopie van de opname bewaard blijft. Transcripties en verslagen worden slechts tijdelijk bewaard en kunnen op elk moment door u worden verwijderd. Zo heeft u altijd volledige controle over uw data en die van uw cliënten.
+            </p>
           </div>
         </div>
       </Container>
